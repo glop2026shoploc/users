@@ -1,0 +1,14 @@
+name: CI Backend
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-test:
+    uses: glop2026shoploc/.github/.github/workflows/ci-back.yml@main
+    # pas obligatoire mais permet de définir la version java qu'on veut (defaut déjà 21 dans mon template) 
+    with:
+      java-version: '21'
