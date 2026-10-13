@@ -1,6 +1,7 @@
-package com.glop.users;
+package com.glop.users.config.security;
 
 
+import com.glop.users.domain.model.UserModel;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -23,9 +24,10 @@ public class JwtUtils {
     @Value("${app.expiration-time}")
     private Long expirationTime;
 
-    public String generateToken(String username){
+    public String generateToken(UserModel userModel){
         Map<String,Object> claims = new HashMap<>();
-        return createToken(claims,username);
+        claims.put("roles",userModel.getRoles());
+        return createToken(claims,userModel.getEmail());
     }
 
     private String createToken(Map<String, Object> claims, String subject) {
@@ -43,9 +45,9 @@ public class JwtUtils {
         return new SecretKeySpec(keyBytes,SignatureAlgorithm.HS512.getJcaName());
     }
 
-    public Boolean validateToken(String token, UserDetails userDetails){
+    public Boolean validateToken(String token, CustomUserDetails customUserDetails){
         String username = extractUsername(token);
-        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+        return (username.equals(customUserDetails.getEmail())) && !isTokenExpired(token);
     }
 
     private boolean isTokenExpired(String token) {

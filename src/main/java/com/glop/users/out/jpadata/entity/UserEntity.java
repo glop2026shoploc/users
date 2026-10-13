@@ -1,4 +1,4 @@
-package com.glop.users;
+package com.glop.users.out.jpadata.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
@@ -14,7 +14,8 @@ public class UserEntity {
     UUID userId;
 
     private String email;
-    private String name;
+    private String lastName;
+    private String firstName;
     private String password;
     private String role;
 }
