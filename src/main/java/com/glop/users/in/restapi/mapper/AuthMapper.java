@@ -3,9 +3,9 @@ package com.glop.users.in.restapi.mapper;
 import com.glop.users.domain.model.AuthenticationModel;
 import com.glop.users.domain.model.CredentialsModel;
 import com.glop.users.domain.model.UserModel;
-import com.glop.users.in.restapi.payload.CredentialsPayload;
-import com.glop.users.in.restapi.payload.TokenResponse;
-import com.glop.users.in.restapi.payload.UserCreationPayload;
+import com.glop.users.in.restapi.payload.auth.CredentialsPayload;
+import com.glop.users.in.restapi.payload.auth.TokenResponse;
+import com.glop.users.in.restapi.payload.auth.UserCreationPayload;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 

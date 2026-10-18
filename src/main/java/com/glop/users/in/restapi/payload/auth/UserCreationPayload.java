@@ -1,4 +1,4 @@
-package com.glop.users.in.restapi.payload;
+package com.glop.users.in.restapi.payload.auth;
 
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;

@@ -20,6 +20,8 @@ public class UserAdapterOut implements UserPortOut {
 
     @Override
     public UserModel create(UserModel userModel) {
+        userRepository.save(userOutMapper.toUserEntity(userModel));
+
         return userOutMapper.toUserModel(userRepository.save(userOutMapper.toUserEntity(userModel)));
     }
 }
