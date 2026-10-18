@@ -34,7 +34,4 @@ public class AuthController {
         return authMapper.toTokenResponse(authPortIn.login(authMapper.toUserModel(credentialsPayload)));
     }
 
-    public UserDetailsPayload getUserDetails(String token){
-        return authMapper.toUserDetailsPayload(authPortIn.fin);
-    }
 }
