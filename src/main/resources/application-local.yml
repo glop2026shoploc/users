@@ -28,3 +28,6 @@ spring:
     baseline-on-migrate: true
     baseline-version: 0
     validate-on-migrate: true
+  docker:
+    compose:
+      lifecycle-management: start-only
