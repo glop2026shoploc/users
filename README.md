@@ -22,8 +22,8 @@ Microservice **gestion des utilisateurs** du projet glop — Spring Boot (Java 2
 - [Docker et CI](#docker-et-ci)
 - [Avec les autres microservices](#avec-les-autres-microservices)
 - [Conventions](#conventions)
-- [POC](poc)
-  - [Security](security)
+- [POC](#poc)
+  - [L'authentification](#lauthentification)
 
 ---
 
@@ -230,7 +230,23 @@ Ton service (IDE, port 8081) appelle les autres via `localhost:<port>` (voir le 
 
 Exemple : `feat: add product search endpoint`
 
-## POC 
+---
 
-### Security
+## POC
+
+### L'authentification
+
+Il faut vérifier qui se connecte et ce qu'il a le droit de faire, par exemple qu'un client ne puisse pas modifier le catalogue d'un commerçant. Spring Security avec JWT tourne directement dans les services Spring, rien à installer en plus. Keycloak sert surtout à avoir une seule connexion pour plusieurs applis, mais c'est un serveur en plus et on n'a qu'une application.
+
+On l'a mis en place dans le service users. Les mots de passe sont hashés en base, la librairie jjwt crée les tokens JWT, et un filtre `JWTFilter` vérifie le token de chaque requête avant de la laisser passer.
+
+Nous avons décidé d'utiliser Spring Security pour gérer l'authentification des utilisateurs.
+Pour le configurer, nous avons ajouté une table en base de données contenant nos utilisateurs ainsi que leur mot de passe hashé. Ensuite nous avons intégré les dépendances suivantes au projet :
+
+- **Spring Security** : pour définir des routes nécessitant une authentification ;
+- **JWT (`io.jsonwebtoken`)** : pour créer des jetons permettant d'identifier un utilisateur.
+
+Pour authentifier l'utilisateur à chaque requête, un `JWTFilter` a été ajouté : son rôle est de récupérer toutes les requêtes entrantes et de vérifier que l'utilisateur a fourni un token et qu'il est valide.
+
+Pour générer le token d'authentification, nous avons ajouté une classe `JWTUtils` : son rôle est de générer et décoder un token et de l'authentifier grâce à une clé privée.
 
