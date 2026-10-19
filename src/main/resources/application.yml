@@ -32,5 +32,5 @@ spring:
     compose:
       lifecycle-management: start-only
 app:
-  secret-key: 5yQDWnJcTnbnVJAgHcogeLJU4N5zOrBN1Uw6UAs9I-yFLD8Lycid_rerx5RPo249vKDTMDRDHZ0hbLMSDTt-2Q
+  secret-key: ${APP-SECRET-KEY:}
   expiration-time: 9000000
