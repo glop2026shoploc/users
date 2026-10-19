@@ -22,6 +22,8 @@ Microservice **gestion des utilisateurs** du projet glop — Spring Boot (Java 2
 - [Docker et CI](#docker-et-ci)
 - [Avec les autres microservices](#avec-les-autres-microservices)
 - [Conventions](#conventions)
+- [POC](poc)
+  - [Security](security)
 
 ---
 
@@ -227,3 +229,8 @@ Ton service (IDE, port 8081) appelle les autres via `localhost:<port>` (voir le 
 | `docs` | documentation |
 
 Exemple : `feat: add product search endpoint`
+
+## POC 
+
+### Security
+
