@@ -2,16 +2,17 @@ name: CI Backend
 
 on:
   push:
-    branches: [main]
+    branches: [main, dev]
     tags: ['v*']
   pull_request:
-    branches: [main]
+    branches: [main, dev]
 
 jobs:
   ci:
     uses: glop2026shoploc/.github/.github/workflows/ci-back.yml@main
     with:
       image-name: users
+    secrets: inherit
     permissions:
       contents: read
       packages: write
