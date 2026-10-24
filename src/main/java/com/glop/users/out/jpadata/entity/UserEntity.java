@@ -17,4 +17,5 @@ public class UserEntity {
     private String firstName;
     private String password;
     private String role;
+    private boolean dataUsageConsent;
 }
