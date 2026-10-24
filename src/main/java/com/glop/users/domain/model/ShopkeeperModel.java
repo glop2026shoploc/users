@@ -13,4 +13,8 @@ public class ShopkeeperModel {
     String password;
     String encodedPassword;
     ShopkeeperStatus status;
+
+    public void setStatut(ShopkeeperStatus shopkeeperStatus) {
+        this.status = shopkeeperStatus;
+    }
 }
