@@ -3,14 +3,14 @@ package com.glop.users.domain.model;
 import lombok.Data;
 
 @Data
-public class CommercantModel {
+public class ShopkeeperModel {
 
-    String raisonSociale;
-    String categorie;
+    String companyName;
+    String category;
     String siret;
-    String adressePostale;
+    String address;
     String email;
     String password;
     String encodedPassword;
-    CommercantStatus statut;
+    ShopkeeperStatus status;
 }

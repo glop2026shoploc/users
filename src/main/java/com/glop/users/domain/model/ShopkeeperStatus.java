@@ -1,6 +1,6 @@
 package com.glop.users.domain.model;
 
-public enum CommercantStatus {
+public enum ShopkeeperStatus {
     VALIDATED,
     REJECTED,
     WAITING;
