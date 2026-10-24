@@ -1,19 +1,19 @@
 package com.glop.users.out.jpadata.entity;
 
-import com.glop.users.domain.model.CommercantStatus;
+import com.glop.users.domain.model.ShopkeeperStatus;
 import jakarta.persistence.*;
 import lombok.Data;
 
 @Entity
 @Data
-@Table(name = "commercants", uniqueConstraints = {@UniqueConstraint(columnNames = {"email"}),
+@Table(name = "shopkeepers", uniqueConstraints = {@UniqueConstraint(columnNames = {"email"}),
         @UniqueConstraint(columnNames = {"siret"})
 })
-public class CommercantEntity {
+public class ShopkeeperEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name="commercant_id")
-    Long commercantId;
+    @Column(name="shopkeeper_id")
+    Long shopkeeperId;
 
     @Column(name="company_name")
     private String companyName;
@@ -24,8 +24,8 @@ public class CommercantEntity {
     @Column(name="siret")
     private String siret;
 
-    @Column(name="adress")
-    private String adress;
+    @Column(name="address")
+    private String address;
 
     @Column(name="email")
     private String email;
@@ -35,5 +35,5 @@ public class CommercantEntity {
 
     @Column(name="status")
     @Enumerated(EnumType.STRING)
-    private CommercantStatus status;
+    private ShopkeeperStatus status;
 }
