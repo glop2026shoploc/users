@@ -13,7 +13,7 @@ public class ShopkeeperMapperTest {
     private final ShopkeeperMapper mapper = new ShopkeeperMapperImpl();
 
     @Test
-    void toShopkeeperModel_shouldMapAllFieldsAndIgnoreStatus() {
+    void testToShopkeeperModelShouldMapAllFieldsAndIgnoreStatus() {
         ShopkeeperRegistrationPayload payload = new ShopkeeperRegistrationPayload();
         payload.setCompanyName("MonCommercant");
         payload.setCategory("ALIMENTATION");
@@ -34,7 +34,7 @@ public class ShopkeeperMapperTest {
     }
 
     @Test
-    void toShopkeeperResponsePayload_shouldMapAllFields() {
+    void testToShopkeeperResponsePayloadShouldMapAllFields() {
         ShopkeeperModel model = new ShopkeeperModel();
         model.setCompanyName("MonCommercant");
         model.setCategory("ALIMENTATION");
