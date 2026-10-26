@@ -7,15 +7,15 @@ import lombok.Data;
 @Data
 @Schema(name = "ShopkeeperResponse", description = "Commercant après inscription")
 public class ShopkeeperResponsePayload {
-    @Schema(description = "Raison sociale du commerce", example = "Boulangerie Dupont")
+    @Schema(description = "Raison sociale du commerce", example = "MonCommercant")
     private String companyName;
     @Schema(description = "Catégorie du commerce", example = "Boulangerie")
     private String category;
     @Schema(description = "Numéro SIRET", example = "12345678900013")
     private String siret;
-    @Schema(description = "Adresse postale du commerce", example = "12 rue de la République, 69000 Lyon")
+    @Schema(description = "Adresse postale du commerce", example = "12 rue de la République, 59000 Lille")
     private String address;
-    @Schema(description = "Email du commerçant", example = "contact@boulangerie-dupont.fr")
+    @Schema(description = "Email du commerçant", example = "moncommercant@example.fr")
     private String email;
     @Schema(description = "Statut d'inscription", example = "WAITING")
     private ShopkeeperStatus status;

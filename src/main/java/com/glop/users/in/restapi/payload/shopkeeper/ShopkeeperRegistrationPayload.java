@@ -12,7 +12,7 @@ import lombok.Data;
 public class ShopkeeperRegistrationPayload {
     @NotBlank
     @Schema(description = "Raison sociale du commerce",
-            example = "Boulangerie Dupont",
+            example = "MonCommercant",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private String companyName;
 
@@ -30,13 +30,13 @@ public class ShopkeeperRegistrationPayload {
 
     @NotBlank
     @Schema(description = "Adresse postale du commerce",
-            example = "12 rue de la République, 69000 Lyon",
+            example = "12 rue de la République, 59000 Lille",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private String address;
 
     @NotBlank
     @Schema(description = "Email du commerçant",
-            example = "contact@boulangerie-dupont.fr",
+            example = "moncommercant@example.fr",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private String email;
 
