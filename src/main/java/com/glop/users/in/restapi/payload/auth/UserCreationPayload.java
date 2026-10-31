@@ -38,7 +38,7 @@ public class UserCreationPayload {
     private String firstName;
 
     @NotBlank
-    @Size(min = 8, message = "Le mot de passe doit contenir au moins 8 caractères.")
+    @Size(min = 12, message = "Le mot de passe doit contenir au moins 12 caractères.")
     @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9\\s]).+$", message = "Le mot de passe doit contenir une minuscule, une majuscule, un chiffre et un caractère spécial.")
     @Schema(
             description = "User password",
