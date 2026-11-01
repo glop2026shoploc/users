@@ -31,6 +31,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers("/shopkeeper/register")
                                 .permitAll()
+                                .requestMatchers("/shopkeeper/admin/**")
+                                .hasRole("ADMIN")
                                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
                                 .permitAll()
                                 .requestMatchers("/error")

@@ -112,6 +112,12 @@ Console SQL :
 docker compose exec users-db psql -U users -d users
 ```
 
+Pour avoir un compte admin, on crée un compte client normal puis on lui donne le rôle `ADMIN` dans la console SQL.
+
+```sql
+UPDATE users SET role = 'ADMIN' WHERE email = 'marius@example.fr';
+```
+
 
 ---
 
