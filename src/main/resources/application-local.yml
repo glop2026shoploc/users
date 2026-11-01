@@ -3,6 +3,8 @@ server:
   servlet:
     context-path: /api/users
 spring:
+  config:
+    import: optional:file:.env[.properties]
   application:
     name: users
   datasource:
@@ -31,3 +33,6 @@ spring:
   docker:
     compose:
       lifecycle-management: start-only
+app:
+  secret-key: ${APP_SECRET_KEY:}
+  expiration-time: 9000000
