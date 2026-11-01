@@ -10,6 +10,10 @@ import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Locale;
 
 @RequiredArgsConstructor
 @Service
@@ -19,11 +23,13 @@ public class AuthService implements AuthPortIn {
     private final JwtUtils jwtUtils;
     @Override
     public AuthenticationModel register(UserModel userModel) throws BadRequestException {
-        System.out.println("Register - before check");
-        if(userPortOut.findByEmail(userModel.getEmail())!=null){
-            throw new BadRequestException("");
+        userModel.setEmail(userModel.getEmail().trim().toLowerCase(Locale.ROOT));
+        if (!userModel.isDataUsageConsent()) {
+            throw new BadRequestException("Le consentement à l'utilisation des données est obligatoire.");
         }
-        System.out.println("Register - after check");
+        if (userPortOut.findByEmail(userModel.getEmail()) != null) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette adresse e-mail est déjà utilisée.");
+        }
         userModel.setEncodedPassword(passwordEncoder.encode(userModel.getPassword()));
         userModel = userPortOut.create(userModel);
         return getCredentials(userModel);

@@ -17,4 +17,6 @@ public class UserEntity {
     private String firstName;
     private String password;
     private String role;
+    @Column(columnDefinition = "boolean default false")
+    private boolean dataUsageConsent;
 }

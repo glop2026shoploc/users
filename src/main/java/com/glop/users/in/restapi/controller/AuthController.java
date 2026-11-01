@@ -6,6 +6,7 @@ import com.glop.users.domain.port.in.AuthPortIn;
 import com.glop.users.in.restapi.mapper.AuthMapper;
 import com.glop.users.in.restapi.payload.auth.UserCreationPayload;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
@@ -24,9 +25,10 @@ public class AuthController {
     private final AuthMapper authMapper;
 
     @PostMapping("/register")
-    public TokenResponse register(@RequestBody UserCreationPayload user) throws BadRequestException {
-        return authMapper.toTokenResponse(authPortIn.register(authMapper.toUserModel(user)));
-
+    public TokenResponse register(@Valid @RequestBody UserCreationPayload user) throws BadRequestException {
+        TokenResponse tokenResponse = authMapper.toTokenResponse(authPortIn.register(authMapper.toUserModel(user)));
+        log.info("User account created successfully.");
+        return tokenResponse;
     }
 
     @PostMapping("/login")
