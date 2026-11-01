@@ -5,14 +5,18 @@ import com.glop.users.domain.port.in.ShopkeeperPortIn;
 import com.glop.users.in.restapi.mapper.ShopkeeperMapper;
 import com.glop.users.in.restapi.payload.shopkeeper.ShopkeeperRegistrationPayload;
 import com.glop.users.in.restapi.payload.shopkeeper.ShopkeeperResponsePayload;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.coyote.BadRequestException;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
 
 @Slf4j
 @RestController
@@ -27,5 +31,11 @@ public class ShopkeeperController {
     public ShopkeeperResponsePayload register(@RequestBody ShopkeeperRegistrationPayload shopkeeper) throws BadRequestException {
         ShopkeeperModel shopkeeperModel = shopkeeperMapper.toShopkeeperModel(shopkeeper);
         return shopkeeperMapper.toShopkeeperResponsePayload(shopkeeperPortIn.register(shopkeeperModel));
+    }
+
+    @GetMapping("/admin/waiting")
+    @SecurityRequirement(name = "bearerAuth")
+    public List<ShopkeeperResponsePayload> getWaitingShopkeepers() {
+        return shopkeeperMapper.toShopkeeperResponsePayloads(shopkeeperPortIn.getWaitingShopkeepers());
     }
 }

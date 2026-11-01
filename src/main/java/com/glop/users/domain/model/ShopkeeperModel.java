@@ -5,6 +5,7 @@ import lombok.Data;
 @Data
 public class ShopkeeperModel {
 
+    Long shopkeeperId;
     String companyName;
     String category;
     String siret;

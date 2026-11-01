@@ -1,6 +1,7 @@
 package com.glop.users.out.jpadata.adapter;
 
 import com.glop.users.domain.model.ShopkeeperModel;
+import com.glop.users.domain.model.ShopkeeperStatus;
 import com.glop.users.out.jpadata.entity.ShopkeeperEntity;
 import com.glop.users.out.jpadata.mapper.ShopkeeperOutMapperImpl;
 import com.glop.users.out.jpadata.repository.ShopkeeperRepository;
@@ -9,6 +10,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,5 +61,16 @@ public class ShopkeeperAdapterOutTest {
         ShopkeeperModel result = shopkeeperAdapterOut.create(new ShopkeeperModel());
 
         assertThat(result.getEncodedPassword()).isEqualTo("hashed-password");
+    }
+
+    @Test
+    void testFindByStatusShouldReturnMappedShopkeepers() {
+        entity.setShopkeeperId(1L);
+        when(shopkeeperRepository.findByStatus(ShopkeeperStatus.WAITING)).thenReturn(List.of(entity));
+
+        List<ShopkeeperModel> result = shopkeeperAdapterOut.findByStatus(ShopkeeperStatus.WAITING);
+
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getShopkeeperId()).isEqualTo(1L);
     }
 }

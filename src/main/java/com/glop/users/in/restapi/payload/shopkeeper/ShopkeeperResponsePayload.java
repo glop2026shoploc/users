@@ -7,6 +7,8 @@ import lombok.Data;
 @Data
 @Schema(name = "ShopkeeperResponse", description = "Commercant après inscription")
 public class ShopkeeperResponsePayload {
+    @Schema(description = "Identifiant du commerçant", example = "1")
+    private Long shopkeeperId;
     @Schema(description = "Raison sociale du commerce", example = "MonCommercant")
     private String companyName;
     @Schema(description = "Catégorie du commerce", example = "Boulangerie")

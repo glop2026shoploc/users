@@ -11,6 +11,8 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -82,5 +84,15 @@ public class ShopkeeperServiceTest {
 
         assertThat(result.getPassword()).isNull();
         assertThat(result.getEncodedPassword()).isNull();
+    }
+
+    @Test
+    public void testGetWaitingShopkeepersShouldAskForWaitingStatus() {
+        when(shopkeeperPortOut.findByStatus(ShopkeeperStatus.WAITING)).thenReturn(List.of(shopkeeper));
+
+        List<ShopkeeperModel> result = shopkeeperService.getWaitingShopkeepers();
+
+        assertThat(result.size()).isEqualTo(1);
+        assertThat(result.get(0).getEmail()).isEqualTo("moncommercant@example.fr");
     }
 }

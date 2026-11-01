@@ -12,6 +12,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.List;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
@@ -38,5 +40,20 @@ public class ShopkeeperControllerTest {
 
         assertThat(response.getEmail()).isEqualTo("contact@boulangerie-dupont.fr");
         assertThat(response.getStatus()).isEqualTo(ShopkeeperStatus.WAITING);
+    }
+
+    @Test
+    void testGetWaitingShopkeepersShouldReturnShopkeepersWithId() {
+        ShopkeeperController controller = new ShopkeeperController(shopkeeperPortIn, new ShopkeeperMapperImpl());
+
+        ShopkeeperModel waiting = new ShopkeeperModel();
+        waiting.setShopkeeperId(1L);
+        waiting.setStatus(ShopkeeperStatus.WAITING);
+        when(shopkeeperPortIn.getWaitingShopkeepers()).thenReturn(List.of(waiting));
+
+        List<ShopkeeperResponsePayload> response = controller.getWaitingShopkeepers();
+
+        assertThat(response.size()).isEqualTo(1);
+        assertThat(response.get(0).getShopkeeperId()).isEqualTo(1L);
     }
 }

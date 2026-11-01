@@ -1,12 +1,15 @@
 package com.glop.users.out.jpadata.adapter;
 
 import com.glop.users.domain.model.ShopkeeperModel;
+import com.glop.users.domain.model.ShopkeeperStatus;
 import com.glop.users.domain.port.out.ShopkeeperPortOut;
 import com.glop.users.out.jpadata.entity.ShopkeeperEntity;
 import com.glop.users.out.jpadata.mapper.ShopkeeperOutMapper;
 import com.glop.users.out.jpadata.repository.ShopkeeperRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 @RequiredArgsConstructor
@@ -30,5 +33,10 @@ public class ShopkeeperAdapterOut implements ShopkeeperPortOut {
         ShopkeeperEntity shopkeeperEntity = shopkeeperOutMapper.toShopkeeperEntity(shopkeeperModel);
         ShopkeeperEntity shopkeeperCreated = shopkeeperRepository.save(shopkeeperEntity);
         return shopkeeperOutMapper.toShopkeeperModel(shopkeeperCreated);
+    }
+
+    @Override
+    public List<ShopkeeperModel> findByStatus(ShopkeeperStatus status) {
+        return shopkeeperOutMapper.toShopkeeperModels(shopkeeperRepository.findByStatus(status));
     }
 }

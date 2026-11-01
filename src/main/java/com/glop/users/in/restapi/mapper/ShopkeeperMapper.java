@@ -6,9 +6,12 @@ import com.glop.users.in.restapi.payload.shopkeeper.ShopkeeperResponsePayload;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
+import java.util.List;
+
 @Mapper(componentModel = "spring")
 public interface ShopkeeperMapper {
 
+    @Mapping(target = "shopkeeperId", ignore = true)
     @Mapping(target = "companyName", source = "companyName")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "siret", source = "siret")
@@ -18,6 +21,7 @@ public interface ShopkeeperMapper {
     @Mapping(target = "status", ignore = true)
     ShopkeeperModel toShopkeeperModel(ShopkeeperRegistrationPayload ShopkeeperRegistrationPayload);
 
+    @Mapping(target = "shopkeeperId", source = "shopkeeperId")
     @Mapping(target = "companyName", source = "companyName")
     @Mapping(target = "category", source = "category")
     @Mapping(target = "siret", source = "siret")
@@ -25,5 +29,7 @@ public interface ShopkeeperMapper {
     @Mapping(target = "email", source = "email")
     @Mapping(target = "status", source = "status")
     ShopkeeperResponsePayload toShopkeeperResponsePayload(ShopkeeperModel ShopkeeperModel);
+
+    List<ShopkeeperResponsePayload> toShopkeeperResponsePayloads(List<ShopkeeperModel> shopkeepers);
     
 }

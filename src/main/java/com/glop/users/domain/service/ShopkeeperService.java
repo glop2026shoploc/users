@@ -9,6 +9,8 @@ import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @RequiredArgsConstructor
 @Service
 public class ShopkeeperService implements ShopkeeperPortIn {
@@ -31,5 +33,10 @@ public class ShopkeeperService implements ShopkeeperPortIn {
         shopkeeperModel.setEncodedPassword(null);
 
         return shopkeeperModel;
+    }
+
+    @Override
+    public List<ShopkeeperModel> getWaitingShopkeepers() {
+        return shopkeeperPortOut.findByStatus(ShopkeeperStatus.WAITING);
     }
 }
