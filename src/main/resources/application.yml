@@ -5,6 +5,10 @@ server:
 spring:
   application:
     name: users
+  servlet:
+    multipart:
+      max-file-size: 4MB
+      max-request-size: 4MB
   datasource:
     url: ${DB_URL:jdbc:postgresql://localhost:5433/users}
     username: ${DB_USER:users}
@@ -34,3 +38,10 @@ spring:
 app:
   secret-key: ${APP-SECRET-KEY:}
   expiration-time: 9000000
+
+garage:
+  endpoint: ${GARAGE_ENDPOINT:http://localhost:3900}
+  access-key: ${GARAGE_ACCESS_KEY:GK0123456789abcdef0123456789abcdef}
+  secret-key: ${GARAGE_SECRET_KEY:0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef}
+  region-name: garage
+  bucket: active

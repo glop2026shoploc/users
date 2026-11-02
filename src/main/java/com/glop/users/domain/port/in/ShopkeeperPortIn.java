@@ -10,4 +10,5 @@ public interface ShopkeeperPortIn {
     ShopkeeperModel register(ShopkeeperModel shopkeeperModel) throws BadRequestException;
     List<ShopkeeperModel> getWaitingShopkeepers();
     ShopkeeperModel updateStatus(Long shopkeeperId, ShopkeeperStatus status) throws BadRequestException;
+    void uploadDocument(Long shopkeeperId, byte[] content, String contentType) throws BadRequestException;
 }

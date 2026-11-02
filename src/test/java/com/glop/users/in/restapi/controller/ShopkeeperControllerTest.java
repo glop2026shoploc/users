@@ -11,11 +11,14 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -69,5 +72,15 @@ public class ShopkeeperControllerTest {
         ShopkeeperResponsePayload response = controller.updateStatus(1L, ShopkeeperStatus.VALIDATED);
 
         assertThat(response.getStatus()).isEqualTo(ShopkeeperStatus.VALIDATED);
+    }
+
+    @Test
+    void testUploadDocumentShouldSendFileToService() throws IOException {
+        ShopkeeperController controller = new ShopkeeperController(shopkeeperPortIn, new ShopkeeperMapperImpl());
+        MockMultipartFile file = new MockMultipartFile("file", "kbis.pdf", "application/pdf", new byte[]{1, 2, 3});
+
+        controller.uploadDocument(1L, file);
+
+        verify(shopkeeperPortIn).uploadDocument(1L, file.getBytes(), "application/pdf");
     }
 }

@@ -2,6 +2,7 @@ package com.glop.users.domain.service;
 
 import com.glop.users.domain.model.ShopkeeperModel;
 import com.glop.users.domain.model.ShopkeeperStatus;
+import com.glop.users.domain.port.out.DocumentPortOut;
 import com.glop.users.domain.port.out.ShopkeeperPortOut;
 import org.apache.coyote.BadRequestException;
 import org.junit.jupiter.api.BeforeEach;
@@ -16,6 +17,7 @@ import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.ArgumentMatchers.startsWith;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -27,13 +29,16 @@ public class ShopkeeperServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
+    @Mock
+    private DocumentPortOut documentPortOut;
+
     private ShopkeeperService shopkeeperService;
 
     private ShopkeeperModel shopkeeper;
 
     @BeforeEach
     void setUp() {
-        this.shopkeeperService = new ShopkeeperService(passwordEncoder, shopkeeperPortOut);
+        this.shopkeeperService = new ShopkeeperService(passwordEncoder, shopkeeperPortOut, documentPortOut);
 
         this.shopkeeper = new ShopkeeperModel();
         shopkeeper.setCompanyName("MonCommercant");
@@ -134,5 +139,48 @@ public class ShopkeeperServiceTest {
         shopkeeperService.updateStatus(1L, ShopkeeperStatus.VALIDATED);
 
         verify(shopkeeperPortOut).updateStatus(1L, ShopkeeperStatus.VALIDATED);
+    }
+
+    @Test
+    public void testUploadDocumentShouldThrowErrorWhenShopkeeperNotFound() {
+        when(shopkeeperPortOut.findById(1L)).thenReturn(null);
+
+        assertThatThrownBy(() -> shopkeeperService.uploadDocument(1L, new byte[]{1}, "application/pdf"))
+                .isInstanceOf(ResponseStatusException.class);
+
+        verifyNoInteractions(documentPortOut);
+    }
+
+    @Test
+    public void testUploadDocumentShouldThrowErrorWhenAlreadyValidatedOrRejected() {
+        shopkeeper.setStatus(ShopkeeperStatus.VALIDATED);
+        when(shopkeeperPortOut.findById(1L)).thenReturn(shopkeeper);
+
+        assertThatThrownBy(() -> shopkeeperService.uploadDocument(1L, new byte[]{1}, "application/pdf"))
+                .isInstanceOf(BadRequestException.class);
+
+        verifyNoInteractions(documentPortOut);
+    }
+
+    @Test
+    public void testUploadDocumentShouldThrowErrorWhenTypeIsNotAllowed() {
+        shopkeeper.setStatus(ShopkeeperStatus.WAITING);
+        when(shopkeeperPortOut.findById(1L)).thenReturn(shopkeeper);
+
+        assertThatThrownBy(() -> shopkeeperService.uploadDocument(1L, new byte[]{1}, "text/plain"))
+                .isInstanceOf(BadRequestException.class);
+
+        verifyNoInteractions(documentPortOut);
+    }
+
+    @Test
+    public void testUploadDocumentShouldStoreFileInShopkeeperFolder() throws BadRequestException {
+        shopkeeper.setStatus(ShopkeeperStatus.WAITING);
+        when(shopkeeperPortOut.findById(1L)).thenReturn(shopkeeper);
+        byte[] content = new byte[]{1, 2, 3};
+
+        shopkeeperService.uploadDocument(1L, content, "application/pdf");
+
+        verify(documentPortOut).upload(startsWith("shopkeepers/1/"), eq(content), eq("application/pdf"));
     }
 }

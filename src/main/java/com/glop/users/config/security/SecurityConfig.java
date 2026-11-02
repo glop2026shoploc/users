@@ -3,6 +3,7 @@ package com.glop.users.config.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -33,6 +34,8 @@ public class SecurityConfig {
                                 .permitAll()
                                 .requestMatchers("/shopkeeper/admin/**")
                                 .hasRole("ADMIN")
+                                .requestMatchers(HttpMethod.POST, "/shopkeeper/*/documents")
+                                .permitAll()
                                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
                                 .permitAll()
                                 .requestMatchers("/error")
