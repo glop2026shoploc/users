@@ -60,4 +60,10 @@ public class ShopkeeperController {
     public void uploadDocument(@PathVariable Long shopkeeperId, @RequestPart("file") MultipartFile file) throws IOException {
         shopkeeperPortIn.uploadDocument(shopkeeperId, file.getBytes(), file.getContentType());
     }
+
+    @GetMapping("/admin/{shopkeeperId}/documents")
+    @SecurityRequirement(name = "bearerAuth")
+    public List<String> getDocumentUrls(@PathVariable Long shopkeeperId) {
+        return shopkeeperPortIn.getDocumentUrls(shopkeeperId);
+    }
 }

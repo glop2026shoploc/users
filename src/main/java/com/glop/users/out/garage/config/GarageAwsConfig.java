@@ -9,6 +9,8 @@ import software.amazon.awssdk.core.checksums.RequestChecksumCalculation;
 import software.amazon.awssdk.core.checksums.ResponseChecksumValidation;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
+import software.amazon.awssdk.services.s3.S3Configuration;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 
 import java.net.URI;
 
@@ -37,6 +39,16 @@ public class GarageAwsConfig {
                 // Garage ne supporte pas les checksums "trailing" (aws-chunked) activés par défaut depuis le SDK 2.30
                 .requestChecksumCalculation(RequestChecksumCalculation.WHEN_REQUIRED)
                 .responseChecksumValidation(ResponseChecksumValidation.WHEN_REQUIRED)
+                .build();
+    }
+
+    @Bean
+    public S3Presigner s3Presigner() {
+        return S3Presigner.builder()
+                .endpointOverride(URI.create(endpoint))
+                .region(Region.of(regionName))
+                .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
+                .serviceConfiguration(S3Configuration.builder().pathStyleAccessEnabled(true).build())
                 .build();
     }
 }

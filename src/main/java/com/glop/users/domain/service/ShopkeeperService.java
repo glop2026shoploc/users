@@ -75,4 +75,11 @@ public class ShopkeeperService implements ShopkeeperPortIn {
 
         documentPortOut.upload("shopkeepers/" + shopkeeperId + "/" + UUID.randomUUID() + extension, content, contentType);
     }
+
+    @Override
+    public List<String> getDocumentUrls(Long shopkeeperId) {
+        if (shopkeeperPortOut.findById(shopkeeperId) == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Commerçant introuvable.");
+
+        return documentPortOut.getDownloadUrls("shopkeepers/" + shopkeeperId + "/");
+    }
 }

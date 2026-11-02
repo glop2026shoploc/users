@@ -83,4 +83,14 @@ public class ShopkeeperControllerTest {
 
         verify(shopkeeperPortIn).uploadDocument(1L, file.getBytes(), "application/pdf");
     }
+
+    @Test
+    void testGetDocumentUrlsShouldReturnUrls() {
+        ShopkeeperController controller = new ShopkeeperController(shopkeeperPortIn, new ShopkeeperMapperImpl());
+        when(shopkeeperPortIn.getDocumentUrls(1L)).thenReturn(List.of("http://localhost:3900/active/shopkeepers/1/doc.pdf"));
+
+        List<String> response = controller.getDocumentUrls(1L);
+
+        assertThat(response.get(0)).isEqualTo("http://localhost:3900/active/shopkeepers/1/doc.pdf");
+    }
 }

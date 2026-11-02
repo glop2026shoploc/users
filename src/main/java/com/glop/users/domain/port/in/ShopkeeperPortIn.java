@@ -11,4 +11,5 @@ public interface ShopkeeperPortIn {
     List<ShopkeeperModel> getWaitingShopkeepers();
     ShopkeeperModel updateStatus(Long shopkeeperId, ShopkeeperStatus status) throws BadRequestException;
     void uploadDocument(Long shopkeeperId, byte[] content, String contentType) throws BadRequestException;
+    List<String> getDocumentUrls(Long shopkeeperId);
 }

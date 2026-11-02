@@ -183,4 +183,24 @@ public class ShopkeeperServiceTest {
 
         verify(documentPortOut).upload(startsWith("shopkeepers/1/"), eq(content), eq("application/pdf"));
     }
+
+    @Test
+    public void testGetDocumentUrlsShouldThrowErrorWhenShopkeeperNotFound() {
+        when(shopkeeperPortOut.findById(1L)).thenReturn(null);
+
+        assertThatThrownBy(() -> shopkeeperService.getDocumentUrls(1L))
+                .isInstanceOf(ResponseStatusException.class);
+
+        verifyNoInteractions(documentPortOut);
+    }
+
+    @Test
+    public void testGetDocumentUrlsShouldReadShopkeeperFolder() {
+        when(shopkeeperPortOut.findById(1L)).thenReturn(shopkeeper);
+        when(documentPortOut.getDownloadUrls("shopkeepers/1/")).thenReturn(List.of("http://localhost:3900/active/shopkeepers/1/doc.pdf"));
+
+        List<String> result = shopkeeperService.getDocumentUrls(1L);
+
+        assertThat(result.size()).isEqualTo(1);
+    }
 }
