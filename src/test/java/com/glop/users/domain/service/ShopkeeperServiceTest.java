@@ -10,6 +10,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
 
@@ -94,5 +95,44 @@ public class ShopkeeperServiceTest {
 
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).getEmail()).isEqualTo("moncommercant@example.fr");
+    }
+
+    @Test
+    public void testUpdateStatusShouldThrowErrorWhenNewStatusIsWaiting() {
+        assertThatThrownBy(() -> shopkeeperService.updateStatus(1L, ShopkeeperStatus.WAITING))
+                .isInstanceOf(BadRequestException.class);
+
+        verify(shopkeeperPortOut, never()).updateStatus(any(), any());
+    }
+
+    @Test
+    public void testUpdateStatusShouldThrowErrorWhenShopkeeperNotFound() {
+        when(shopkeeperPortOut.findById(1L)).thenReturn(null);
+
+        assertThatThrownBy(() -> shopkeeperService.updateStatus(1L, ShopkeeperStatus.VALIDATED))
+                .isInstanceOf(ResponseStatusException.class);
+
+        verify(shopkeeperPortOut, never()).updateStatus(any(), any());
+    }
+
+    @Test
+    public void testUpdateStatusShouldThrowErrorWhenAlreadyValidatedOrRejected() {
+        shopkeeper.setStatus(ShopkeeperStatus.REJECTED);
+        when(shopkeeperPortOut.findById(1L)).thenReturn(shopkeeper);
+
+        assertThatThrownBy(() -> shopkeeperService.updateStatus(1L, ShopkeeperStatus.VALIDATED))
+                .isInstanceOf(BadRequestException.class);
+
+        verify(shopkeeperPortOut, never()).updateStatus(any(), any());
+    }
+
+    @Test
+    public void testUpdateStatusShouldSaveNewStatus() throws BadRequestException {
+        shopkeeper.setStatus(ShopkeeperStatus.WAITING);
+        when(shopkeeperPortOut.findById(1L)).thenReturn(shopkeeper);
+
+        shopkeeperService.updateStatus(1L, ShopkeeperStatus.VALIDATED);
+
+        verify(shopkeeperPortOut).updateStatus(1L, ShopkeeperStatus.VALIDATED);
     }
 }

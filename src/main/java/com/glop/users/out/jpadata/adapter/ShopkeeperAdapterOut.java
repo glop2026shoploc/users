@@ -39,4 +39,16 @@ public class ShopkeeperAdapterOut implements ShopkeeperPortOut {
     public List<ShopkeeperModel> findByStatus(ShopkeeperStatus status) {
         return shopkeeperOutMapper.toShopkeeperModels(shopkeeperRepository.findByStatus(status));
     }
+
+    @Override
+    public ShopkeeperModel findById(Long shopkeeperId) {
+        return shopkeeperOutMapper.toShopkeeperModel(shopkeeperRepository.findByShopkeeperId(shopkeeperId));
+    }
+
+    @Override
+    public ShopkeeperModel updateStatus(Long shopkeeperId, ShopkeeperStatus status) {
+        ShopkeeperEntity shopkeeperEntity = shopkeeperRepository.findByShopkeeperId(shopkeeperId);
+        shopkeeperEntity.setStatus(status);
+        return shopkeeperOutMapper.toShopkeeperModel(shopkeeperRepository.save(shopkeeperEntity));
+    }
 }

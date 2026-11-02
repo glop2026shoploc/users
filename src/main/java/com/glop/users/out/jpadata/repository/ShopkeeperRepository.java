@@ -10,4 +10,5 @@ public interface ShopkeeperRepository extends JpaRepository<ShopkeeperEntity, Lo
     ShopkeeperEntity findByEmail(String email);
     ShopkeeperEntity findBySiret(String siret);
     List<ShopkeeperEntity> findByStatus(ShopkeeperStatus status);
+    ShopkeeperEntity findByShopkeeperId(Long shopkeeperId);
 }

@@ -56,4 +56,18 @@ public class ShopkeeperControllerTest {
         assertThat(response.size()).isEqualTo(1);
         assertThat(response.get(0).getShopkeeperId()).isEqualTo(1L);
     }
+
+    @Test
+    void testUpdateStatusShouldReturnShopkeeperWithNewStatus() throws BadRequestException {
+        ShopkeeperController controller = new ShopkeeperController(shopkeeperPortIn, new ShopkeeperMapperImpl());
+
+        ShopkeeperModel validated = new ShopkeeperModel();
+        validated.setShopkeeperId(1L);
+        validated.setStatus(ShopkeeperStatus.VALIDATED);
+        when(shopkeeperPortIn.updateStatus(1L, ShopkeeperStatus.VALIDATED)).thenReturn(validated);
+
+        ShopkeeperResponsePayload response = controller.updateStatus(1L, ShopkeeperStatus.VALIDATED);
+
+        assertThat(response.getStatus()).isEqualTo(ShopkeeperStatus.VALIDATED);
+    }
 }

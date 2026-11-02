@@ -10,4 +10,6 @@ public interface ShopkeeperPortOut {
     ShopkeeperModel findBySiret(String siret);
     ShopkeeperModel create(ShopkeeperModel shopkeeperModel);
     List<ShopkeeperModel> findByStatus(ShopkeeperStatus status);
+    ShopkeeperModel findById(Long shopkeeperId);
+    ShopkeeperModel updateStatus(Long shopkeeperId, ShopkeeperStatus status);
 }

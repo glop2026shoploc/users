@@ -73,4 +73,17 @@ public class ShopkeeperAdapterOutTest {
         assertThat(result.size()).isEqualTo(1);
         assertThat(result.get(0).getShopkeeperId()).isEqualTo(1L);
     }
+
+    @Test
+    void testUpdateStatusShouldChangeStatusOfExistingEntity() {
+        entity.setShopkeeperId(1L);
+        entity.setStatus(ShopkeeperStatus.WAITING);
+        when(shopkeeperRepository.findByShopkeeperId(1L)).thenReturn(entity);
+        when(shopkeeperRepository.save(entity)).thenReturn(entity);
+
+        ShopkeeperModel result = shopkeeperAdapterOut.updateStatus(1L, ShopkeeperStatus.REJECTED);
+
+        assertThat(result.getShopkeeperId()).isEqualTo(1L);
+        assertThat(result.getStatus()).isEqualTo(ShopkeeperStatus.REJECTED);
+    }
 }
