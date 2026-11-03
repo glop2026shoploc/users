@@ -6,6 +6,7 @@ import com.glop.users.domain.model.CredentialsModel;
 import com.glop.users.domain.model.UserModel;
 import com.glop.users.domain.port.in.AuthPortIn;
 import com.glop.users.domain.port.out.UserPortOut;
+import com.glop.users.exception.AlreadyRegisterException;
 import lombok.RequiredArgsConstructor;
 import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,11 +20,9 @@ public class AuthService implements AuthPortIn {
     private final JwtUtils jwtUtils;
     @Override
     public AuthenticationModel register(UserModel userModel) throws BadRequestException {
-        System.out.println("Register - before check");
         if(userPortOut.findByEmail(userModel.getEmail())!=null){
-            throw new BadRequestException("");
+            throw new AlreadyRegisterException();
         }
-        System.out.println("Register - after check");
         userModel.setEncodedPassword(passwordEncoder.encode(userModel.getPassword()));
         userModel = userPortOut.create(userModel);
         return getCredentials(userModel);
