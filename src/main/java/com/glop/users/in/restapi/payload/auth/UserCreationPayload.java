@@ -4,6 +4,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.AssertTrue;
+import jakarta.validation.constraints.Pattern;
+import jakarta.validation.constraints.Size;
 import lombok.Data;
 
 @Data
@@ -38,10 +41,15 @@ public class UserCreationPayload {
 
     @NotBlank
     @Size(min = 12, message = "Le mot de passe doit contenir au moins 12 caractères.")
+    @Pattern(regexp = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^A-Za-z0-9\\s]).+$", message = "Le mot de passe doit contenir une minuscule, une majuscule, un chiffre et un caractère spécial.")
     @Schema(
             description = "User password",
             example = "AStrongPassword123",
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private String password;
+
+    @AssertTrue(message = "Le consentement est obligatoire pour créer un compte.")
+    @Schema(description = "Consent to use personal data for account management", requiredMode = Schema.RequiredMode.REQUIRED)
+    private boolean dataUsageConsent;
 }

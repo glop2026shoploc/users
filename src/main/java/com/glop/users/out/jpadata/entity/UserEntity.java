@@ -25,6 +25,8 @@ public class UserEntity {
 
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
+    private String password;
+    private String role;
 
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;
@@ -32,4 +34,7 @@ public class UserEntity {
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private OffsetDateTime createdAt;
+
+    @Column(columnDefinition = "boolean default false")
+    private boolean dataUsageConsent;
 }

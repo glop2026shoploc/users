@@ -13,4 +13,5 @@ public class UserModel {
     String lastName;
     String password;
     String encodedPassword;
+    boolean dataUsageConsent;
 }
