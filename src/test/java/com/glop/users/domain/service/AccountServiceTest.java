@@ -13,12 +13,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.util.Optional;
+
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class AuthServiceTest {
+public class AccountServiceTest {
 
     @Mock
     private UserPortOut userPortOut;
@@ -26,16 +28,13 @@ public class AuthServiceTest {
     @Mock
     private PasswordEncoder passwordEncoder;
 
-    @Mock
-    private JwtUtils jwtUtils;
-
-    private AuthService authService;
+    private AccountService accountService;
 
     private UserModel user;
 
     @BeforeEach
     void setUp() {
-        this.authService = new AuthService(userPortOut, passwordEncoder, jwtUtils);
+        this.accountService = new AccountService(userPortOut, passwordEncoder);
 
         this.user = new UserModel();
         user.setFirstName("John");
@@ -49,7 +48,7 @@ public class AuthServiceTest {
     public void testRegisterShouldThrowErrorWhenNoConsent() {
         user.setDataUsageConsent(false);
 
-        assertThatThrownBy(() -> authService.register(user))
+        assertThatThrownBy(() -> accountService.createAccount(user))
                 .isInstanceOf(BadRequestException.class);
 
         verify(userPortOut, never()).create(any());
@@ -57,9 +56,9 @@ public class AuthServiceTest {
 
     @Test
     public void testRegisterShouldThrowErrorWhenEmailAlreadyExists() {
-        when(userPortOut.findByEmail("john.doe@example.fr")).thenReturn(new UserModel());
+        when(userPortOut.findByEmail("john.doe@example.fr")).thenReturn(Optional.of(new UserModel()));
 
-        assertThatThrownBy(() -> authService.register(user))
+        assertThatThrownBy(() -> accountService.createAccount(user))
                 .isInstanceOf(ResponseStatusException.class);
 
         verify(userPortOut, never()).create(any());
@@ -67,15 +66,13 @@ public class AuthServiceTest {
     }
 
     @Test
-    public void testRegisterShouldNormalizeEmailAndReturnToken() throws BadRequestException {
+    public void testRegisterShouldNormalizeEmail() throws BadRequestException {
         when(passwordEncoder.encode("AStrongPassword123!")).thenReturn("hashed-password");
         when(userPortOut.create(any())).thenAnswer(invocation -> invocation.getArgument(0));
-        when(jwtUtils.generateToken(any())).thenReturn("token");
 
-        AuthenticationModel result = authService.register(user);
+        UserModel result = accountService.createAccount(user);
 
-        assertThat(user.getEmail()).isEqualTo("john.doe@example.fr");
-        assertThat(user.getEncodedPassword()).isEqualTo("hashed-password");
-        assertThat(result.getToken()).isEqualTo("token");
+        assertThat(result.getEmail()).isEqualTo("john.doe@example.fr");
+        assertThat(result.getEncodedPassword()).isEqualTo("hashed-password");
     }
 }
