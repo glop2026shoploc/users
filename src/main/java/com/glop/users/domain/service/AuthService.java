@@ -1,56 +1,37 @@
 package com.glop.users.domain.service;
 
-import com.glop.users.config.security.JwtUtils;
 import com.glop.users.domain.model.AuthenticationModel;
 import com.glop.users.domain.model.CredentialsModel;
 import com.glop.users.domain.model.UserModel;
 import com.glop.users.domain.port.in.AuthPortIn;
+import com.glop.users.domain.port.out.TokenPortOut;
 import com.glop.users.domain.port.out.UserPortOut;
-import com.glop.users.exception.AlreadyRegisterException;
+import com.glop.users.exception.InvalidCredentialsException;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-@RequiredArgsConstructor
+import java.util.Optional;
+
 @Service
+@RequiredArgsConstructor
 public class AuthService implements AuthPortIn {
     private final UserPortOut userPortOut;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
-    @Override
-    public AuthenticationModel register(UserModel userModel) throws BadRequestException {
-        if(userPortOut.findByEmail(userModel.getEmail())!=null){
-            throw new AlreadyRegisterException();
-        }
-        userModel.setEncodedPassword(passwordEncoder.encode(userModel.getPassword()));
-        userModel = userPortOut.create(userModel);
-        return getCredentials(userModel);
-    }
+    private final TokenPortOut tokenPortOut;
 
-    private AuthenticationModel getCredentials(UserModel userModel) {
-        return AuthenticationModel.builder()
-                .token(jwtUtils.generateToken(userModel))
-                .type("Bearer").build();
+    @Override
+    public AuthenticationModel login(CredentialsModel credentials) {
+        UserModel user = userPortOut.findWithPasswordByEmail(credentials.getEmail())
+                .filter(found -> passwordEncoder.matches(credentials.getPassword(), found.getEncodedPassword()))
+                .orElseThrow(InvalidCredentialsException::new);
+
+        user.setEncodedPassword(null);
+        return AuthenticationModel.bearer(tokenPortOut.generateToken(user));
     }
 
     @Override
-    public AuthenticationModel login(CredentialsModel credentialsModel) throws Exception {
-        UserModel userModel = userPortOut.findByEmail(credentialsModel.getEmail());
-        if(userModel!=null && passwordEncoder.matches(credentialsModel.getPassword(),userModel.getEncodedPassword())){
-            return getCredentials(userModel);
-        }
-        throw new Exception();
+    public Optional<UserModel> findUserModelByUserEmail(String email) {
+        return userPortOut.findByEmail(email);
     }
-
-    @Override
-    public UserModel findUserModelByUserEmail(String email) {
-        UserModel userModel = userPortOut.findByEmail(email);
-        if(userModel!=null){
-            userModel.setPassword(null);
-            userModel.setEncodedPassword(null);
-        }
-        return userModel;
-    }
-
 }

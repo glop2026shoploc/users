@@ -2,6 +2,7 @@ package com.glop.users.config.security;
 
 
 import com.glop.users.domain.model.UserModel;
+import com.glop.users.domain.port.out.TokenPortOut;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -17,16 +18,17 @@ import java.util.Map;
 import java.util.function.Function;
 
 @Component
-public class JwtUtils {
+public class JwtUtils implements TokenPortOut {
     @Value("${app.secret-key}")
     private String secretKey;
 
     @Value("${app.expiration-time}")
     private Long expirationTime;
 
+    @Override
     public String generateToken(UserModel userModel){
         Map<String,Object> claims = new HashMap<>();
-        claims.put("roles",userModel.getRoles());
+        claims.put("userId", userModel.getUserId().toString());
         return createToken(claims,userModel.getEmail());
     }
 

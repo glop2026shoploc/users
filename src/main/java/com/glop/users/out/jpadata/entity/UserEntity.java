@@ -1,20 +1,35 @@
 package com.glop.users.out.jpadata.entity;
 
 import jakarta.persistence.*;
-import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
+import java.time.OffsetDateTime;
 import java.util.UUID;
 
 @Entity
-@Table(name = "users",uniqueConstraints = @UniqueConstraint(columnNames = {"email"}))
-@Data
+@Table(name = "users")
+@Getter
+@Setter
 public class UserEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
-    UUID userId;
+    @Column(name = "user_id")
+    private UUID userId;
+
+    /** Unicité insensible à la casse assurée en base (index unique sur lower(email)). */
+    @Column(name = "email", nullable = false)
     private String email;
-    private String lastName;
+
+    @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
-    private String password;
-    private String role;
+
+    @Column(name = "last_name", nullable = false, length = 100)
+    private String lastName;
+
+    @CreationTimestamp
+    @Column(name = "created_at", nullable = false, updatable = false)
+    private OffsetDateTime createdAt;
 }
