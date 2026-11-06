@@ -3,6 +3,7 @@ package com.glop.users.domain.service;
 import com.glop.users.domain.model.UserModel;
 import com.glop.users.domain.port.out.UserPortOut;
 import com.glop.users.exception.AlreadyRegisterException;
+import com.glop.users.exception.RequiredUserDataAuthorization;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,9 @@ public class AccountService {
 
     public UserModel createAccount(UserModel account) {
         account.setEmail(normalizeEmail(account.getEmail()));
+        if (!account.isDataUsageConsent()) {
+            throw new RequiredUserDataAuthorization("Le consentement à l'utilisation des données est obligatoire.");
+        }
         if (userPortOut.existsByEmail(account.getEmail())) {
             throw new AlreadyRegisterException();
         }

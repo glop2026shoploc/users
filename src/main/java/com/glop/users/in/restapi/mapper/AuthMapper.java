@@ -23,6 +23,7 @@ public interface AuthMapper {
     @Mapping(target = "lastName", source = "lastName")
     @Mapping(target = "password", source = "password")
     @Mapping(target = "encodedPassword", ignore = true)
+    @Mapping(target = "dataUsageConsent", source = "dataUsageConsent")
     UserModel toUserModel(UserCreationPayload userCreationPayload);
 
     @Mapping(target = "email", source = "email")

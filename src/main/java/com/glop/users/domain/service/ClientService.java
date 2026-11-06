@@ -52,6 +52,7 @@ public class ClientService implements ClientPortIn {
 
     @Override
     public AuthenticationModel create(UUID userId, ClientModel clientModel) {
+        checkCityExists(clientModel.getAddressModel());
         UserModel user = userPortOut.findById(userId).orElseThrow(UserNotFoundException::new);
         return AuthenticationModel.bearer(tokenPortOut.generateToken(createClient(user,clientModel).getUserModel()));
     }

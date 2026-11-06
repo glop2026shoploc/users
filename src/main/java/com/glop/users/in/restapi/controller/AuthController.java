@@ -25,7 +25,7 @@ public class AuthController {
 
     @PostMapping("/login")
     public TokenResponse login(@Valid @RequestBody CredentialsPayload credentialsPayload) {
-        TokenResponse tokenResponse = authMapper.toTokenResponse(authPortIn.login(authMapper.toCredentialsModel(credentialsPayload))); =authMapper.toTokenResponse(authPortIn.login(authMapper.toCredentialsModel(credentialsPayload)));
+        TokenResponse tokenResponse = authMapper.toTokenResponse(authPortIn.login(authMapper.toCredentialsModel(credentialsPayload)));
         log.info("User account created successfully.");
         return tokenResponse;
     }

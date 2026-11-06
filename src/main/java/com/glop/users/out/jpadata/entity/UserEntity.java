@@ -25,8 +25,6 @@ public class UserEntity {
 
     @Column(name = "first_name", nullable = false, length = 100)
     private String firstName;
-    private String password;
-    private String role;
 
     @Column(name = "last_name", nullable = false, length = 100)
     private String lastName;

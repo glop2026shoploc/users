@@ -26,6 +26,7 @@ public interface UserOutMapper {
     @Mapping(target = "lastName", source = "user.lastName")
     @Mapping(target = "password", ignore = true)
     @Mapping(target = "encodedPassword", source = "password")
+    @Mapping(target = "dataUsageConsent", source = "user.dataUsageConsent")
     UserModel toUserModel(UserCredentialsEntity credentialsEntity);
 
     @Mapping(target = "userId", ignore = true)
@@ -33,6 +34,7 @@ public interface UserOutMapper {
     @Mapping(target = "firstName", source = "firstName")
     @Mapping(target = "lastName", source = "lastName")
     @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "dataUsageConsent", source = "dataUsageConsent")
     UserEntity toUserEntity(UserModel userModel);
 
     /** Nouveau compte : credentials + user (enregistré en cascade). */
