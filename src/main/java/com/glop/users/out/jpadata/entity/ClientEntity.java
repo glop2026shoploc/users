@@ -22,6 +22,6 @@ public class ClientEntity {
     private UserEntity user;
 
     @OneToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "address_id", nullable = false, unique = true)
-    private AddressEntity address;
+    @JoinColumn(name = "city_id", nullable = false, unique = true)
+    private CityEntity city;
 }

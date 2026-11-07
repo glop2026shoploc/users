@@ -7,11 +7,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
 @Schema(name = "ClientCreation", description = "Inscription d'un client : adresse seulement")
 public class ClientCreationPayload {
     @Valid
     @NotNull
     @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
-    private AddressPayload address;
+    private UUID cityId;
 }

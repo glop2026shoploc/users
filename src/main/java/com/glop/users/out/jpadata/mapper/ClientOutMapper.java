@@ -14,7 +14,7 @@ public interface ClientOutMapper {
 
     @Mapping(target = "clientId", source = "clientId")
     @Mapping(target = "userModel", source = "user")
-    @Mapping(target = "addressModel", source = "address")
+    @Mapping(target = "cityModel", source = "city")
     ClientModel toClientModel(ClientEntity clientEntity);
 
 }

@@ -20,7 +20,7 @@ public interface AuthContextOutMapper {
     @Mapping(target = "shopId", ignore = true)
     @Mapping(target = "employeeRole", ignore = true)
     @Mapping(target = "employeeId", source = "clientId")
-    @Mapping(target = "cityId", source = "address.city.cityId")
+    @Mapping(target = "cityId", source = "city.cityId")
     @Mapping(target = "adminId", ignore = true)
     @Mapping(target = "clientId",source = "clientId" )
     AuthContext toAuthContext(ClientEntity clientEntity);

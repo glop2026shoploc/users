@@ -1,6 +1,7 @@
 package com.glop.users.domain.model;
 
 import com.glop.users.domain.model.address.AddressModel;
+import com.glop.users.domain.model.address.CityModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -15,5 +16,5 @@ import java.util.UUID;
 public class ClientModel {
     UUID clientId;
     UserModel userModel;
-    AddressModel addressModel;
+    CityModel cityModel;
 }
