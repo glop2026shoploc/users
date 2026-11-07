@@ -3,13 +3,14 @@ package com.glop.users.domain.service;
 import com.glop.users.domain.model.AuthenticationModel;
 import com.glop.users.domain.model.ClientModel;
 import com.glop.users.domain.model.UserModel;
+import com.glop.users.domain.model.UserRole;
 import com.glop.users.domain.model.address.AddressModel;
 import com.glop.users.domain.port.in.ClientPortIn;
 import com.glop.users.domain.port.out.ClientPortOut;
 import com.glop.users.domain.port.out.ReferentialPortOut;
 import com.glop.users.domain.port.out.TokenPortOut;
 import com.glop.users.domain.port.out.UserPortOut;
-import com.glop.users.exception.ClientAlreadyExistsException;
+import com.glop.users.exception.credential.ClientAlreadyExistsException;
 import com.glop.users.exception.UnknownReferenceException;
 import com.glop.users.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ import java.util.UUID;
 @Transactional
 public class ClientService implements ClientPortIn {
     private final AccountService accountService;
+    private final AuthService authService;
     private final ClientPortOut clientPortOut;
     private final ReferentialPortOut referentialPortOut;
     private final TokenPortOut tokenPortOut;
@@ -31,11 +33,11 @@ public class ClientService implements ClientPortIn {
     @Override
     public AuthenticationModel register(ClientModel clientModel) {
         checkCityExists(clientModel.getAddressModel());
-        UserModel client = accountService.createAccount(clientModel.getUserModel());
-        clientModel.setUserModel(client);
+        UserModel user = accountService.createAccount(clientModel.getUserModel());
+        clientModel.setUserModel(user);
         clientPortOut.create(clientModel);
 
-        return AuthenticationModel.bearer(tokenPortOut.generateToken(client));
+        return authService.login(user.getUserId(), UserRole.CLIENT);
     }
 
     private ClientModel createClient(UserModel user, ClientModel clientModel){
@@ -54,6 +56,7 @@ public class ClientService implements ClientPortIn {
     public AuthenticationModel create(UUID userId, ClientModel clientModel) {
         checkCityExists(clientModel.getAddressModel());
         UserModel user = userPortOut.findById(userId).orElseThrow(UserNotFoundException::new);
-        return AuthenticationModel.bearer(tokenPortOut.generateToken(createClient(user,clientModel).getUserModel()));
+        createClient(user,clientModel);
+        return authService.login(user.getUserId(), UserRole.CLIENT);
     }
 }

@@ -1,4 +1,4 @@
-package com.glop.users.exception;
+package com.glop.users.exception.credential;
 
 /** Ce compte est déjà client. */
 public class ClientAlreadyExistsException extends RuntimeException {

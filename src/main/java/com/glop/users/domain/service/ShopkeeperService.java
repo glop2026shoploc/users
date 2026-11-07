@@ -1,15 +1,12 @@
 package com.glop.users.domain.service;
 
-import com.glop.users.domain.model.AuthenticationModel;
-import com.glop.users.domain.model.ShopkeeperModel;
-import com.glop.users.domain.model.ShopkeeperStatus;
-import com.glop.users.domain.model.UserModel;
+import com.glop.users.domain.model.*;
 import com.glop.users.domain.port.in.ShopkeeperPortIn;
 import com.glop.users.domain.port.out.ReferentialPortOut;
 import com.glop.users.domain.port.out.ShopkeeperPortOut;
 import com.glop.users.domain.port.out.TokenPortOut;
 import com.glop.users.domain.port.out.UserPortOut;
-import com.glop.users.exception.ShopAlreadyExistsException;
+import com.glop.users.exception.credential.ShopAlreadyExistsException;
 import com.glop.users.exception.UnknownReferenceException;
 import com.glop.users.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +24,7 @@ public class ShopkeeperService implements ShopkeeperPortIn {
     private final ShopkeeperPortOut shopkeeperPortOut;
     private final ReferentialPortOut referentialPortOut;
     private final TokenPortOut tokenPortOut;
+    private final AuthService authService;
 
     @Override
     public AuthenticationModel register(ShopkeeperModel shop) {
@@ -35,7 +33,7 @@ public class ShopkeeperService implements ShopkeeperPortIn {
         UserModel owner = accountService.createAccount(shop.getOwner());
         create(owner, shop);
 
-        return AuthenticationModel.bearer(tokenPortOut.generateToken(owner));
+        return authService.login(owner.getUserId(), UserRole.MERCHANT);
     }
 
     @Override

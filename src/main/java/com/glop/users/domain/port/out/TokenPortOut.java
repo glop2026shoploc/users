@@ -1,7 +1,7 @@
 package com.glop.users.domain.port.out;
 
-import com.glop.users.domain.model.UserModel;
+import com.glop.users.domain.model.AuthContext;
 
 public interface TokenPortOut {
-    String generateToken(UserModel userModel);
+    String generateToken(AuthContext authContext);
 }

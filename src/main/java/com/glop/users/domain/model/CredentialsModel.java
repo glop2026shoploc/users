@@ -7,4 +7,6 @@ public class CredentialsModel {
     private String email;
     private String password;
     private String encodedPassword;
+    private UserRole role;
+
 }

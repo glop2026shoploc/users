@@ -1,11 +1,13 @@
 package com.glop.users.config.security;
 
 
+import com.glop.users.domain.model.AuthContext;
 import com.glop.users.domain.model.UserModel;
 import com.glop.users.domain.port.out.TokenPortOut;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
@@ -15,22 +17,43 @@ import java.security.Key;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Function;
 
 @Component
+@RequiredArgsConstructor
 public class JwtUtils implements TokenPortOut {
     @Value("${app.secret-key}")
     private String secretKey;
+    private final JwtAuthMapper jwtAuthMapper;
 
     @Value("${app.expiration-time}")
     private Long expirationTime;
 
     @Override
-    public String generateToken(UserModel userModel){
+    public String generateToken(AuthContext authContext){
         Map<String,Object> claims = new HashMap<>();
-        claims.put("userId", userModel.getUserId().toString());
-        return createToken(claims,userModel.getEmail());
+
+        claims.put("userId", authContext.getUserId().toString());
+        claims.put("cityId", authContext.getCityId().toString());
+        switch (authContext.getUserRole()){
+            case CLIENT ->{
+                claims.put("clientId", authContext.getClientId().toString());
+                claims.put("role", JWTRole.CLIENT);
+            } case ADMIN -> {
+                    claims.put("adminId",authContext.getAdminId());
+                    claims.put("role",JWTRole.ADMIN);
+            } case MERCHANT -> {
+                claims.put("shopId",authContext.getShopId());
+                claims.put("employeeId",authContext.getEmployeeId());
+                claims.put("employeeRole",jwtAuthMapper.toJWTMerchantRole(authContext.getEmployeeRole()));
+                claims.put("role",JWTRole.MERCHANT);
+            }
+        }
+
+        return createToken(claims,authContext.getEmail());
     }
+
 
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()

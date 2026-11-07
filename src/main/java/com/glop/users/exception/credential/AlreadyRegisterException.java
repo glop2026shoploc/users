@@ -1,4 +1,4 @@
-package com.glop.users.exception;
+package com.glop.users.exception.credential;
 
 public class AlreadyRegisterException extends RuntimeException {
     public AlreadyRegisterException(String message) {

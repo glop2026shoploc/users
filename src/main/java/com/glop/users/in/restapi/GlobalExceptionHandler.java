@@ -1,8 +1,8 @@
 package com.glop.users.in.restapi;
 
-import com.glop.users.exception.AlreadyRegisterException;
-import com.glop.users.exception.InvalidCredentialsException;
-import com.glop.users.exception.ShopAlreadyExistsException;
+import com.glop.users.exception.credential.AlreadyRegisterException;
+import com.glop.users.exception.credential.InvalidCredentialsException;
+import com.glop.users.exception.credential.ShopAlreadyExistsException;
 import com.glop.users.exception.UnknownReferenceException;
 import com.glop.users.exception.UserNotFoundException;
 import org.springframework.http.HttpStatus;
