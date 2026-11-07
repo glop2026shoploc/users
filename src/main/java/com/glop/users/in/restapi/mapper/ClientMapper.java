@@ -12,18 +12,18 @@ import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 
-@Mapper(componentModel = "spring", uses = {AddressMapper.class, AuthMapper.class},
+@Mapper(componentModel = "spring", uses = {AuthMapper.class},
         unmappedTargetPolicy = ReportingPolicy.ERROR)
 public interface ClientMapper {
 
 
     @Mapping(target = "userModel", source = "account")
     @Mapping(target = "clientId", ignore = true)
-    @Mapping(target = "addressModel", source = "address")
+    @Mapping(target = "cityModel.id", source = "cityId")
     ClientModel toClient(@Valid ClientRegistrationPayload account);
 
     @Mapping(target = "userModel", ignore = true )
     @Mapping(target = "clientId", ignore = true)
-    @Mapping(target = "addressModel", source = "address")
+    @Mapping(target = "cityModel.id", source = "cityId")
     ClientModel toClient(@Valid ClientCreationPayload account);
 }

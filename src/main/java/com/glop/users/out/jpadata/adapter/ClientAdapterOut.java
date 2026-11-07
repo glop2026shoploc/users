@@ -6,6 +6,7 @@ import com.glop.users.domain.port.out.ClientPortOut;
 import com.glop.users.out.jpadata.entity.AddressEntity;
 import com.glop.users.out.jpadata.entity.ClientEntity;
 import com.glop.users.out.jpadata.mapper.ClientOutMapper;
+import com.glop.users.out.jpadata.repository.CityRepository;
 import com.glop.users.out.jpadata.repository.ClientRepository;
 import com.glop.users.out.jpadata.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
@@ -19,14 +20,14 @@ public class ClientAdapterOut implements ClientPortOut {
     private final ClientRepository clientRepository;
     private final ClientOutMapper clientOutMapper;
     private final UserRepository userRepository;
-    private final AddressWriter addressWriter;
+    private final CityRepository cityRepository;
 
 
     @Override
     public ClientModel create(ClientModel clientModel) {
         ClientEntity client = new ClientEntity();
         client.setUser(userRepository.getReferenceById(clientModel.getUserModel().getUserId()));
-        client.setAddress(addressWriter.save(clientModel.getAddressModel()));
+        client.setCity(cityRepository.getReferenceById(clientModel.getCityModel().getId()));
         client = clientRepository.save(client);
         return clientOutMapper.toClientModel(client);
     }

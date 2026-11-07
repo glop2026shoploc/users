@@ -5,6 +5,7 @@ import com.glop.users.domain.model.ClientModel;
 import com.glop.users.domain.model.UserModel;
 import com.glop.users.domain.model.UserRole;
 import com.glop.users.domain.model.address.AddressModel;
+import com.glop.users.domain.model.address.CityModel;
 import com.glop.users.domain.port.in.ClientPortIn;
 import com.glop.users.domain.port.out.ClientPortOut;
 import com.glop.users.domain.port.out.ReferentialPortOut;
@@ -32,7 +33,7 @@ public class ClientService implements ClientPortIn {
 
     @Override
     public AuthenticationModel register(ClientModel clientModel) {
-        checkCityExists(clientModel.getAddressModel());
+        checkCityExists(clientModel.getCityModel());
         UserModel user = accountService.createAccount(clientModel.getUserModel());
         clientModel.setUserModel(user);
         clientPortOut.create(clientModel);
@@ -46,15 +47,15 @@ public class ClientService implements ClientPortIn {
         return clientPortOut.create(clientModel);
     }
 
-    private void checkCityExists(AddressModel address) {
-        if (!referentialPortOut.cityExists(address.getCityModel().getId())) {
+    private void checkCityExists(CityModel cityModel) {
+        if (!referentialPortOut.cityExists(cityModel.getId())) {
             throw new UnknownReferenceException("Ville inconnue.");
         }
     }
 
     @Override
     public AuthenticationModel create(UUID userId, ClientModel clientModel) {
-        checkCityExists(clientModel.getAddressModel());
+        checkCityExists(clientModel.getCityModel());
         UserModel user = userPortOut.findById(userId).orElseThrow(UserNotFoundException::new);
         createClient(user,clientModel);
         return authService.login(user.getUserId(), UserRole.CLIENT);
