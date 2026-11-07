@@ -26,8 +26,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ShopkeeperAdapterOutTest {
     @Mock
-    private ShopRepository shopkeeperRepository;
-    @Mock
     private ShopRepository shopRepository;
     @Mock
     private EmployeeRepository employeeRepository;
@@ -63,10 +61,9 @@ public class ShopkeeperAdapterOutTest {
 
     @Test
     void testExistsBySiretNumberShouldReturnTrueIfExist() {
-        when(shopkeeperRepository.existsBySiretNumber("12345678900013")).thenReturn(true);
+        when(shopRepository.existsBySiretNumber("12345678900013")).thenReturn(true);
 
         assertThat(shopkeeperAdapterOut.existsBySiret("12345678900013")).isTrue();
-
 
     }
 }

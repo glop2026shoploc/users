@@ -25,7 +25,7 @@ class ShopkeeperOutMapperTest {
     private AddressOutMapper addressOutMapper;
 
     @InjectMocks
-    private ShopkeeperOutMapper mapper;
+    private ShopkeeperOutMapperImpl mapper;
 
     @Test
     void testToShopkeeperModelTransformsEntityToModel() {
