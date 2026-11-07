@@ -1,35 +1,67 @@
 package com.glop.users.domain.service;
 
-import com.glop.users.domain.model.ShopkeeperModel;
-import com.glop.users.domain.model.ShopkeeperStatus;
+import com.glop.users.domain.model.*;
 import com.glop.users.domain.port.in.ShopkeeperPortIn;
+import com.glop.users.domain.port.out.ReferentialPortOut;
 import com.glop.users.domain.port.out.ShopkeeperPortOut;
+import com.glop.users.domain.port.out.TokenPortOut;
+import com.glop.users.domain.port.out.UserPortOut;
+import com.glop.users.exception.credential.ShopAlreadyExistsException;
+import com.glop.users.exception.UnknownReferenceException;
+import com.glop.users.exception.UserNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-@RequiredArgsConstructor
+import java.util.UUID;
+
 @Service
+@RequiredArgsConstructor
+@Transactional
 public class ShopkeeperService implements ShopkeeperPortIn {
-    private final PasswordEncoder passwordEncoder;
+    private final AccountService accountService;
+    private final UserPortOut userPortOut;
     private final ShopkeeperPortOut shopkeeperPortOut;
+    private final ReferentialPortOut referentialPortOut;
+    private final TokenPortOut tokenPortOut;
+    private final AuthService authService;
 
     @Override
-    public ShopkeeperModel register(ShopkeeperModel shopkeeperModel) throws BadRequestException {
-        Boolean shopkeeperEmailExists = shopkeeperPortOut.findByEmail(shopkeeperModel.getEmail()) != null;
-        Boolean shopkeeperSiretExists = shopkeeperPortOut.findBySiret(shopkeeperModel.getSiret()) != null;
+    public AuthenticationModel register(ShopkeeperModel shop) {
+        checkShop(shop); // avant la création du compte : rien n'est créé si le magasin est invalide
 
-        if (shopkeeperEmailExists || shopkeeperSiretExists) throw new BadRequestException("Un commerçant existe déjà avec cet e-mail / ce siret.");
+        UserModel owner = accountService.createAccount(shop.getOwner());
+        create(owner, shop);
 
-        shopkeeperModel.setEncodedPassword(passwordEncoder.encode(shopkeeperModel.getPassword()));
-        shopkeeperModel.setStatut(ShopkeeperStatus.WAITING);
+        return authService.login(owner.getUserId(), UserRole.MERCHANT);
+    }
 
-        shopkeeperModel = shopkeeperPortOut.create(shopkeeperModel);
+    @Override
+    public ShopkeeperModel create(UUID userId, ShopkeeperModel shop) {
+        UserModel owner = userPortOut.findById(userId).orElseThrow(UserNotFoundException::new);
+        checkShop(shop);
 
-        shopkeeperModel.setPassword(null);
-        shopkeeperModel.setEncodedPassword(null);
+        return create(owner, shop);
+    }
 
-        return shopkeeperModel;
+    private void checkShop(ShopkeeperModel shop) {
+        if (shopkeeperPortOut.existsBySiret(shop.getSiret())) {
+            throw new ShopAlreadyExistsException("Un commerce existe déjà avec ce SIRET.");
+        }
+        if (!referentialPortOut.categoryExists(shop.getCategoryId())) {
+           shop.setCategoryId(null);
+        }
+        if (!referentialPortOut.cityExists(shop.getAddress().getCityModel().getId())) {
+            throw new UnknownReferenceException("Ville inconnue.");
+        }
+    }
+
+    private ShopkeeperModel create(UserModel owner, ShopkeeperModel shop) {
+        if (shopkeeperPortOut.existsByOwner(owner.getUserId())) {
+            throw new ShopAlreadyExistsException("Cet utilisateur gère déjà un commerce.");
+        }
+        shop.setOwner(owner);
+        shop.setStatus(ShopkeeperStatus.WAITING);
+        return shopkeeperPortOut.create(shop);
     }
 }

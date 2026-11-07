@@ -2,50 +2,81 @@ package com.glop.users.out.jpadata.mapper;
 
 import com.glop.users.domain.model.ShopkeeperModel;
 import com.glop.users.domain.model.ShopkeeperStatus;
-import com.glop.users.out.jpadata.entity.ShopkeeperEntity;
+import com.glop.users.domain.model.address.AddressModel;
+import com.glop.users.out.jpadata.entity.AddressEntity;
+import com.glop.users.out.jpadata.entity.CategoryEntity;
+import com.glop.users.out.jpadata.entity.ShopEntity;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import java.util.UUID;
 
-public class ShopkeeperOutMapperTest {
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-    private final ShopkeeperOutMapper mapper = new ShopkeeperOutMapperImpl();
+@ExtendWith(MockitoExtension.class)
+class ShopkeeperOutMapperTest {
+
+    @Mock
+    private AddressOutMapper addressOutMapper;
+
+    @InjectMocks
+    private ShopkeeperOutMapperImpl mapper;
 
     @Test
-    public void testToShopkeeperModelTransformsEntityToModel() {
-        ShopkeeperEntity entity = new ShopkeeperEntity();
-        entity.setCompanyName("MonCommercant");
-        entity.setCategory("ALIMENTATION");
-        entity.setSiret("12345678900013");
-        entity.setAddress("12 rue de la Republique, 59000 Lille");
-        entity.setEmail("moncommercant@example.fr");
-        entity.setPassword("hashed-password");
-        entity.setStatus(ShopkeeperStatus.WAITING);
+    void testToShopkeeperModelTransformsEntityToModel() {
+        UUID shopId = UUID.randomUUID();
+        UUID categoryId = UUID.randomUUID();
 
-        ShopkeeperModel model = mapper.toShopkeeperModel(entity);
+        CategoryEntity categoryEntity = new CategoryEntity();
+        categoryEntity.setCategoryId(categoryId);
 
-        assertThat(model.getEncodedPassword()).isEqualTo("hashed-password");
-        assertThat(model.getPassword()).isNull();
+        // Le contenu de l'adresse n'a pas d'importance : son mapping est testé dans AddressOutMapper
+        AddressEntity addressEntity = new AddressEntity();
+        AddressModel addressModel = new AddressModel();
+        when(addressOutMapper.toAddressModel(addressEntity)).thenReturn(addressModel);
+
+        ShopEntity shopEntity = new ShopEntity();
+        shopEntity.setShopId(shopId);
+        shopEntity.setName("MonCommercant");
+        shopEntity.setSiretNumber("12345678900013");
+        shopEntity.setCategory(categoryEntity);
+        shopEntity.setAddress(addressEntity);
+        shopEntity.setStatus(ShopkeeperStatus.WAITING);
+
+        ShopkeeperModel model = mapper.toShopkeeperModel(shopEntity);
+
+        verify(addressOutMapper).toAddressModel(addressEntity);
+        assertThat(model.getAddress()).isSameAs(addressModel);
+
+        assertThat(model.getShopId()).isEqualTo(shopId);
         assertThat(model.getCompanyName()).isEqualTo("MonCommercant");
+        assertThat(model.getSiret()).isEqualTo("12345678900013");
+        assertThat(model.getCategoryId()).isEqualTo(categoryId);
         assertThat(model.getStatus()).isEqualTo(ShopkeeperStatus.WAITING);
+        assertThat(model.getOwner()).isNull();
     }
 
     @Test
-    public void testToShopkeeperEntityTransformsModelToEntity() {
+    void testToShopEntityIgnoresCategoryAndAddress() {
         ShopkeeperModel model = new ShopkeeperModel();
         model.setCompanyName("MonCommercant");
-        model.setCategory("ALIMENTATION");
+        model.setCategoryId(UUID.randomUUID());
         model.setSiret("12345678900013");
-        model.setAddress("12 rue de la Republique, 59000 Lille");
-        model.setEmail("moncommercant@example.fr");
-        model.setPassword("AStrongPassword123!");
-        model.setEncodedPassword("hashed-password");
+        model.setAddress(new AddressModel());
         model.setStatus(ShopkeeperStatus.WAITING);
 
-        ShopkeeperEntity entity = mapper.toShopkeeperEntity(model);
+        ShopEntity entity = mapper.toShopEntity(model);
 
-        assertThat(entity.getPassword()).isEqualTo("hashed-password");
-        assertThat(entity.getCompanyName()).isEqualTo("MonCommercant");
+        assertThat(entity.getName()).isEqualTo("MonCommercant");
+        assertThat(entity.getSiretNumber()).isEqualTo("12345678900013");
         assertThat(entity.getStatus()).isEqualTo(ShopkeeperStatus.WAITING);
+        assertThat(entity.getShopId()).isNull();
+        assertThat(entity.getCategory()).isNull();
+        assertThat(entity.getAddress()).isNull();
     }
 }

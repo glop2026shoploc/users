@@ -34,8 +34,10 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if(username != null && SecurityContextHolder.getContext().getAuthentication() == null){
-            CustomUserDetails customUserDetails = jwtAuthMapper.toCustomUserDetails(authPortIn.findUserModelByUserEmail(username));
-            if(jwtUtils.validateToken(jwt,customUserDetails)){
+            CustomUserDetails customUserDetails = authPortIn.findUserModelByUserEmail(username)
+                    .map(jwtAuthMapper::toCustomUserDetails)
+                    .orElse(null);
+            if(customUserDetails != null && jwtUtils.validateToken(jwt,customUserDetails)){
                 UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(customUserDetails,null,
                         customUserDetails.getAuthorities());
                 authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));

@@ -3,6 +3,7 @@ package com.glop.users.config.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -27,9 +28,11 @@ public class SecurityConfig {
                                 SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(
                         auth
-                                -> auth.requestMatchers("/api/auth/**")
+                                -> auth.requestMatchers("/auth/**")
                                 .permitAll()
-                                .requestMatchers("/shopkeeper/register")
+                                .requestMatchers("/client/register", "/shopkeeper/register")
+                                .permitAll()
+                                .requestMatchers(HttpMethod.GET, "/cities", "/categories")
                                 .permitAll()
                                 .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
                                 .permitAll()

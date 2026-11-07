@@ -1,48 +1,40 @@
 package com.glop.users.in.restapi.payload.shopkeeper;
 
+import com.glop.users.in.restapi.payload.address.AddressPayload;
+import com.glop.users.in.restapi.payload.auth.UserCreationPayload;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
+import jakarta.annotation.Nullable;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.util.UUID;
+
 @Data
-@Schema(
-        description = "Shopkeeper registration request",
-        name = "ShopkeeperRegistrationPayload"
-)
+@Schema(name = "ShopkeeperRegistration", description = "Inscription d'un commerçant non connecté : compte + commerce")
 public class ShopkeeperRegistrationPayload {
+    @Valid
+    @NotNull
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    private UserCreationPayload account;
+
     @NotBlank
     @Schema(description = "Raison sociale du commerce",
             example = "MonCommercant",
             requiredMode = Schema.RequiredMode.REQUIRED)
     private String companyName;
 
-    @NotBlank
-    @Schema(description = "Catégorie du commerce",
-            example = "Boulangerie",
-            requiredMode = Schema.RequiredMode.REQUIRED)
-    private String category;
+    @Nullable
+    @Schema(description = "Identifiant de la catégorie (référentiel)", requiredMode = Schema.RequiredMode.REQUIRED)
+    private UUID categoryId;
 
     @NotBlank
-    @Schema(description = "Numéro SIRET",
-            example = "12345678900013",
-            requiredMode = Schema.RequiredMode.REQUIRED)
+    @Pattern(regexp = "\\d{14}", message = "Le SIRET doit contenir 14 chiffres.")
+    @Schema(description = "Numéro SIRET", example = "12345678900013", requiredMode = Schema.RequiredMode.REQUIRED)
     private String siret;
 
-    @NotBlank
-    @Schema(description = "Adresse postale du commerce",
-            example = "12 rue de la République, 59000 Lille",
-            requiredMode = Schema.RequiredMode.REQUIRED)
-    private String address;
-
-    @NotBlank
-    @Schema(description = "Email du commerçant",
-            example = "moncommercant@example.fr",
-            requiredMode = Schema.RequiredMode.REQUIRED)
-    private String email;
-
-    @NotBlank
-    @Schema(description = "Mot de passe",
-            example = "AStrongPassword",
-            requiredMode = Schema.RequiredMode.REQUIRED)
-    private String password;
+    @Valid
+    @NotNull
+    @Schema(requiredMode = Schema.RequiredMode.REQUIRED)
+    private AddressPayload address;
 }

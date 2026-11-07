@@ -1,14 +1,23 @@
 package com.glop.users.out.jpadata.adapter;
 
 import com.glop.users.domain.model.ShopkeeperModel;
-import com.glop.users.out.jpadata.entity.ShopkeeperEntity;
+import com.glop.users.out.jpadata.entity.EmployeeEntity;
+import com.glop.users.out.jpadata.entity.ShopEntity;
+import com.glop.users.out.jpadata.entity.UserEntity;
+import com.glop.users.out.jpadata.mapper.ShopkeeperOutMapper;
 import com.glop.users.out.jpadata.mapper.ShopkeeperOutMapperImpl;
-import com.glop.users.out.jpadata.repository.ShopkeeperRepository;
+import com.glop.users.out.jpadata.repository.CategoryRepository;
+import com.glop.users.out.jpadata.repository.EmployeeRepository;
+import com.glop.users.out.jpadata.repository.ShopRepository;
+import com.glop.users.out.jpadata.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -17,46 +26,44 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class ShopkeeperAdapterOutTest {
     @Mock
-    private ShopkeeperRepository shopkeeperRepository;
-
+    private ShopRepository shopRepository;
+    @Mock
+    private EmployeeRepository employeeRepository;
+    @Mock
+    private CategoryRepository categoryRepository;
+    @Mock
+    private UserRepository userRepository;
+    @Mock
+    private AddressWriter addressWriter;
+    @Mock
+    private ShopkeeperOutMapper shopkeeperOutMapper;
+    @InjectMocks
     private ShopkeeperAdapterOut shopkeeperAdapterOut;
 
-    private ShopkeeperEntity entity;
-
+    private ShopEntity shop;
+    private EmployeeEntity employeeEntity;
+    private UserEntity user;
 
     @BeforeEach
     void setUp() {
-        shopkeeperAdapterOut = new ShopkeeperAdapterOut(shopkeeperRepository, new ShopkeeperOutMapperImpl());
-        this.entity = new ShopkeeperEntity();
-        entity.setEmail("moncommercant@example.com");
-        entity.setSiret("12345678900013");
-        entity.setPassword("hashed-password");
+        this.shop = new ShopEntity();
+        this.user = new UserEntity();
+        user.setUserId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
+        shop.setSiretNumber("12345678900013");
     }
 
     @Test
-    void testFindByEmailShouldReturnMappedShopkeeper() {
-        when(shopkeeperRepository.findByEmail("moncommercant@example.com")).thenReturn(entity);
+    void testExistsByUserIdShouldReturnMappedShopkeeper() {
+        when(employeeRepository.existsByUser_UserId(user.getUserId())).thenReturn(true);
 
-        ShopkeeperModel result = shopkeeperAdapterOut.findByEmail("moncommercant@example.com");
-
-        assertThat(result.getEmail()).isEqualTo("moncommercant@example.com");
+        assertThat(shopkeeperAdapterOut.existsByOwner(user.getUserId())).isTrue();
     }
 
     @Test
-    void testFindBySiretShouldReturnMappedShopkeeper() {
-        when(shopkeeperRepository.findBySiret("12345678900013")).thenReturn(entity);
+    void testExistsBySiretNumberShouldReturnTrueIfExist() {
+        when(shopRepository.existsBySiretNumber("12345678900013")).thenReturn(true);
 
-        ShopkeeperModel result = shopkeeperAdapterOut.findBySiret("12345678900013");
+        assertThat(shopkeeperAdapterOut.existsBySiret("12345678900013")).isTrue();
 
-        assertThat(result.getSiret()).isEqualTo("12345678900013");
-    }
-
-    @Test
-    void testCreateShouldReturnMappedShopkeeperAndHashedPassword() {
-        when(shopkeeperRepository.save(any())).thenReturn(entity);
-
-        ShopkeeperModel result = shopkeeperAdapterOut.create(new ShopkeeperModel());
-
-        assertThat(result.getEncodedPassword()).isEqualTo("hashed-password");
     }
 }

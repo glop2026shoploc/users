@@ -1,7 +1,9 @@
 package com.glop.users.in.restapi.payload.auth;
 
+import com.glop.users.in.restapi.payload.user.UserRoleEnum;
 import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
 @Schema(
@@ -24,4 +26,9 @@ public class CredentialsPayload {
             requiredMode = Schema.RequiredMode.REQUIRED
     )
     private String password;
+
+    @NotNull
+    @Schema(description = "Contexte de connexion", example = "CLIENT", requiredMode = Schema.RequiredMode.REQUIRED)
+    private UserRoleEnum role;
+
 }

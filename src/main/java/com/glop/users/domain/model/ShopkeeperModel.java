@@ -1,20 +1,19 @@
 package com.glop.users.domain.model;
 
+import com.glop.users.domain.model.address.AddressModel;
 import lombok.Data;
+
+import java.util.UUID;
 
 @Data
 public class ShopkeeperModel {
+    private UUID shopId;
+    private UserModel owner;
 
-    String companyName;
-    String category;
-    String siret;
-    String address;
-    String email;
-    String password;
-    String encodedPassword;
-    ShopkeeperStatus status;
+    private String companyName;
+    private String siret;
+    private UUID categoryId;
+    private AddressModel address;
 
-    public void setStatut(ShopkeeperStatus shopkeeperStatus) {
-        this.status = shopkeeperStatus;
-    }
+    private ShopkeeperStatus status;
 }

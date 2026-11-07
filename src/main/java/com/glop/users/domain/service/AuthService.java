@@ -1,63 +1,57 @@
 package com.glop.users.domain.service;
 
-import com.glop.users.config.security.JwtUtils;
-import com.glop.users.domain.model.AuthenticationModel;
-import com.glop.users.domain.model.CredentialsModel;
-import com.glop.users.domain.model.UserModel;
+import com.glop.users.domain.model.*;
 import com.glop.users.domain.port.in.AuthPortIn;
+import com.glop.users.domain.port.out.AuthContextPortOut;
+import com.glop.users.domain.port.out.TokenPortOut;
 import com.glop.users.domain.port.out.UserPortOut;
+import com.glop.users.exception.credential.InvalidCredentialRoleNotAdminException;
+import com.glop.users.exception.credential.InvalidCredentialRoleNotClientException;
+import com.glop.users.exception.credential.InvalidCredentialRoleNotMerchantException;
+import com.glop.users.exception.credential.InvalidCredentialsException;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.BadRequestException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.http.HttpStatus;
-import org.springframework.web.server.ResponseStatusException;
 
-import java.util.Locale;
+import java.util.Optional;
+import java.util.UUID;
 
-@RequiredArgsConstructor
 @Service
+@RequiredArgsConstructor
 public class AuthService implements AuthPortIn {
     private final UserPortOut userPortOut;
     private final PasswordEncoder passwordEncoder;
-    private final JwtUtils jwtUtils;
-    @Override
-    public AuthenticationModel register(UserModel userModel) throws BadRequestException {
-        userModel.setEmail(userModel.getEmail().trim().toLowerCase(Locale.ROOT));
-        if (!userModel.isDataUsageConsent()) {
-            throw new BadRequestException("Le consentement à l'utilisation des données est obligatoire.");
-        }
-        if (userPortOut.findByEmail(userModel.getEmail()) != null) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Cette adresse e-mail est déjà utilisée.");
-        }
-        userModel.setEncodedPassword(passwordEncoder.encode(userModel.getPassword()));
-        userModel = userPortOut.create(userModel);
-        return getCredentials(userModel);
-    }
-
-    private AuthenticationModel getCredentials(UserModel userModel) {
-        return AuthenticationModel.builder()
-                .token(jwtUtils.generateToken(userModel))
-                .type("Bearer").build();
-    }
+    private final TokenPortOut tokenPortOut;
+    private final AuthContextPortOut authContextAdapterOut;
 
     @Override
-    public AuthenticationModel login(CredentialsModel credentialsModel) throws Exception {
-        UserModel userModel = userPortOut.findByEmail(credentialsModel.getEmail());
-        if(userModel!=null && passwordEncoder.matches(credentialsModel.getPassword(),userModel.getEncodedPassword())){
-            return getCredentials(userModel);
-        }
-        throw new Exception();
+    public AuthenticationModel login(CredentialsModel credentials) {
+        UserModel user = userPortOut.findWithPasswordByEmail(credentials.getEmail())
+                .filter(found -> passwordEncoder.matches(credentials.getPassword(), found.getEncodedPassword()))
+                .orElseThrow(InvalidCredentialsException::new);
+
+        user.setEncodedPassword(null);
+        AuthContext context = getContextForRole(user.getUserId(),credentials.getRole());
+        return AuthenticationModel.bearer(tokenPortOut.generateToken(context));
+    }
+
+    public AuthenticationModel login(UUID userId, UserRole role) {
+        AuthContext context = getContextForRole(userId,role);
+        return AuthenticationModel.bearer(tokenPortOut.generateToken(context));
+    }
+
+
+
+    private AuthContext getContextForRole(UUID userId, UserRole role) throws InvalidCredentialsException{
+        return switch (role){
+            case ADMIN -> authContextAdapterOut.getAdminContext(userId).orElseThrow(InvalidCredentialRoleNotAdminException::new);
+            case CLIENT -> authContextAdapterOut.getClientContext(userId).orElseThrow(InvalidCredentialRoleNotClientException::new);
+            case MERCHANT -> authContextAdapterOut.getMerchantContext(userId).orElseThrow(InvalidCredentialRoleNotMerchantException::new);
+        };
     }
 
     @Override
-    public UserModel findUserModelByUserEmail(String email) {
-        UserModel userModel = userPortOut.findByEmail(email);
-        if(userModel!=null){
-            userModel.setPassword(null);
-            userModel.setEncodedPassword(null);
-        }
-        return userModel;
+    public Optional<UserModel> findUserModelByUserEmail(String email) {
+        return userPortOut.findByEmail(email);
     }
-
 }
