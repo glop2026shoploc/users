@@ -1,14 +1,11 @@
 package com.glop.users.domain.port.out;
 
-import com.glop.users.domain.model.ShopkeeperModel;
-
 import java.util.UUID;
 
+/** Rattachement des utilisateurs à leur magasin (table employee). */
 public interface ShopkeeperPortOut {
-    boolean existsBySiret(String siret);
-
     boolean existsByOwner(UUID userId);
 
-    /** Crée l'adresse, le magasin et rattache son propriétaire comme OWNER. */
-    ShopkeeperModel create(ShopkeeperModel shopkeeperModel);
+    /** Associe l'utilisateur au magasin {@code shopId} (géré par catalogue) en tant que OWNER. */
+    void addOwner(UUID userId, UUID shopId);
 }

@@ -35,7 +35,9 @@ public class JwtUtils implements TokenPortOut {
         Map<String,Object> claims = new HashMap<>();
 
         claims.put("userId", authContext.getUserId().toString());
-        claims.put("cityId", authContext.getCityId().toString());
+        if (authContext.getCityId() != null) { // commercant n'a plus de cityId, il faudra si besoin l'ajouter plus tard d'une certaines manière
+            claims.put("cityId", authContext.getCityId().toString());
+        }
         switch (authContext.getUserRole()){
             case CLIENT ->{
                 claims.put("clientId", authContext.getClientId().toString());
