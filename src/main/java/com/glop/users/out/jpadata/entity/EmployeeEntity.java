@@ -24,9 +24,9 @@ public class EmployeeEntity {
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private UserEntity user;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "shop_id", nullable = false)
-    private ShopEntity shop;
+    /** Magasin géré par le service catalogue (pas de relation JPA). */
+    @Column(name = "shop_id", nullable = false)
+    private UUID shopId;
 
     @Enumerated(EnumType.STRING)
     @JdbcTypeCode(SqlTypes.NAMED_ENUM)

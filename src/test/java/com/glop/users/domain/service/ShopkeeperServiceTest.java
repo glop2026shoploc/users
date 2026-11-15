@@ -8,8 +8,8 @@ import com.glop.users.domain.model.UserRole;
 import com.glop.users.domain.model.address.AddressModel;
 import com.glop.users.domain.model.address.CityModel;
 import com.glop.users.domain.port.out.ReferentialPortOut;
+import com.glop.users.domain.port.out.ShopPortOut;
 import com.glop.users.domain.port.out.ShopkeeperPortOut;
-import com.glop.users.domain.port.out.TokenPortOut;
 import com.glop.users.domain.port.out.UserPortOut;
 import com.glop.users.exception.UnknownReferenceException;
 import com.glop.users.exception.UserNotFoundException;
@@ -34,6 +34,7 @@ public class ShopkeeperServiceTest {
     private static final UUID USER_ID = UUID.randomUUID();
     private static final UUID CATEGORY_ID = UUID.randomUUID();
     private static final UUID CITY_ID = UUID.randomUUID();
+    private static final UUID SHOP_ID = UUID.randomUUID();
 
     @Mock
     private AccountService accountService;
@@ -44,7 +45,7 @@ public class ShopkeeperServiceTest {
     @Mock
     private ReferentialPortOut referentialPortOut;
     @Mock
-    private TokenPortOut tokenPortOut;
+    private ShopPortOut shopPortOut;
     @Mock
     private AuthService authService;
 
@@ -56,7 +57,7 @@ public class ShopkeeperServiceTest {
     @BeforeEach
     void setUp() {
         shopkeeperService = new ShopkeeperService(accountService, userPortOut, shopkeeperPortOut,
-                referentialPortOut, tokenPortOut, authService);
+                shopPortOut, referentialPortOut, authService);
 
         owner = new UserModel();
         owner.setUserId(USER_ID);
@@ -78,20 +79,29 @@ public class ShopkeeperServiceTest {
                 .build());
     }
 
-    private void validReferences() {
-        when(shopkeeperPortOut.existsBySiret(shop.getSiret())).thenReturn(false);
-        when(referentialPortOut.categoryExists(CATEGORY_ID)).thenReturn(true);
-        when(referentialPortOut.cityExists(CITY_ID)).thenReturn(true);
+    /** Simule catalogue : renvoie le magasin avec un id. */
+    private void catalogueCreatesShop() {
+        when(shopPortOut.create(any())).thenAnswer(invocation -> {
+            ShopkeeperModel sent = invocation.getArgument(0);
+            ShopkeeperModel created = new ShopkeeperModel();
+            created.setShopId(SHOP_ID);
+            created.setCompanyName(sent.getCompanyName());
+            created.setSiret(sent.getSiret());
+            created.setCategoryId(sent.getCategoryId());
+            created.setAddress(sent.getAddress());
+            created.setStatus(ShopkeeperStatus.WAITING);
+            return created;
+        });
     }
 
     // ---------- register ----------
 
     @Test
-    void testRegisterShouldCreateAccountAndShopThenReturnToken() {
-        validReferences();
+    void testRegisterShouldCreateAccountShopAndOwnerThenReturnToken() {
+        when(referentialPortOut.cityExists(CITY_ID)).thenReturn(true);
         when(accountService.createAccount(shop.getOwner())).thenReturn(owner);
         when(shopkeeperPortOut.existsByOwner(USER_ID)).thenReturn(false);
-        when(shopkeeperPortOut.create(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        catalogueCreatesShop();
         AuthenticationModel token = AuthenticationModel.builder().type("Bearer").token("token").build();
         when(authService.login(USER_ID, UserRole.MERCHANT)).thenReturn(token);
 
@@ -100,45 +110,33 @@ public class ShopkeeperServiceTest {
         assertThat(result).isEqualTo(token);
         assertThat(shop.getOwner()).isEqualTo(owner);
         assertThat(shop.getStatus()).isEqualTo(ShopkeeperStatus.WAITING);
-        verify(shopkeeperPortOut).create(shop);
+        verify(shopPortOut).create(shop);
+        verify(shopkeeperPortOut).addOwner(USER_ID, SHOP_ID);
     }
 
     @Test
-    void testRegisterShouldThrowAndCreateNothingWhenSiretAlreadyExists() {
-        when(shopkeeperPortOut.existsBySiret(shop.getSiret())).thenReturn(true);
+    void testRegisterShouldNotAddOwnerWhenCatalogueRejectsSiret() {
+        when(referentialPortOut.cityExists(CITY_ID)).thenReturn(true);
+        when(accountService.createAccount(shop.getOwner())).thenReturn(owner);
+        when(shopkeeperPortOut.existsByOwner(USER_ID)).thenReturn(false);
+        when(shopPortOut.create(any())).thenThrow(new ShopAlreadyExistsException("SIRET"));
 
         assertThatThrownBy(() -> shopkeeperService.register(shop))
                 .isInstanceOf(ShopAlreadyExistsException.class);
 
-        verifyNoInteractions(accountService, authService);
-        verify(shopkeeperPortOut, never()).create(any());
+        verify(shopkeeperPortOut, never()).addOwner(any(), any());
+        verifyNoInteractions(authService);
     }
 
     @Test
     void testRegisterShouldThrowAndCreateNothingWhenCityIsUnknown() {
-        when(shopkeeperPortOut.existsBySiret(shop.getSiret())).thenReturn(false);
-        when(referentialPortOut.categoryExists(CATEGORY_ID)).thenReturn(true);
         when(referentialPortOut.cityExists(CITY_ID)).thenReturn(false);
 
         assertThatThrownBy(() -> shopkeeperService.register(shop))
                 .isInstanceOf(UnknownReferenceException.class);
 
-        verifyNoInteractions(accountService, authService);
-        verify(shopkeeperPortOut, never()).create(any());
-    }
-
-    @Test
-    void testRegisterShouldRemoveUnknownCategory() {
-        when(shopkeeperPortOut.existsBySiret(shop.getSiret())).thenReturn(false);
-        when(referentialPortOut.categoryExists(CATEGORY_ID)).thenReturn(false);
-        when(referentialPortOut.cityExists(CITY_ID)).thenReturn(true);
-        when(accountService.createAccount(any())).thenReturn(owner);
-        when(shopkeeperPortOut.existsByOwner(USER_ID)).thenReturn(false);
-        when(shopkeeperPortOut.create(any())).thenAnswer(invocation -> invocation.getArgument(0));
-
-        shopkeeperService.register(shop);
-
-        assertThat(shop.getCategoryId()).isNull();
+        verifyNoInteractions(accountService, authService, shopPortOut);
+        verify(shopkeeperPortOut, never()).addOwner(any(), any());
     }
 
     // ---------- create ----------
@@ -146,14 +144,16 @@ public class ShopkeeperServiceTest {
     @Test
     void testCreateShouldAttachShopToExistingUser() {
         when(userPortOut.findById(USER_ID)).thenReturn(Optional.of(owner));
-        validReferences();
+        when(referentialPortOut.cityExists(CITY_ID)).thenReturn(true);
         when(shopkeeperPortOut.existsByOwner(USER_ID)).thenReturn(false);
-        when(shopkeeperPortOut.create(any())).thenAnswer(invocation -> invocation.getArgument(0));
+        catalogueCreatesShop();
 
         ShopkeeperModel result = shopkeeperService.create(USER_ID, shop);
 
+        assertThat(result.getShopId()).isEqualTo(SHOP_ID);
         assertThat(result.getOwner()).isEqualTo(owner);
         assertThat(result.getStatus()).isEqualTo(ShopkeeperStatus.WAITING);
+        verify(shopkeeperPortOut).addOwner(USER_ID, SHOP_ID);
         verifyNoInteractions(accountService, authService);
     }
 
@@ -164,18 +164,18 @@ public class ShopkeeperServiceTest {
         assertThatThrownBy(() -> shopkeeperService.create(USER_ID, shop))
                 .isInstanceOf(UserNotFoundException.class);
 
-        verify(shopkeeperPortOut, never()).create(any());
+        verifyNoInteractions(shopPortOut);
     }
 
     @Test
     void testCreateShouldThrowWhenUserAlreadyOwnsAShop() {
         when(userPortOut.findById(USER_ID)).thenReturn(Optional.of(owner));
-        validReferences();
+        when(referentialPortOut.cityExists(CITY_ID)).thenReturn(true);
         when(shopkeeperPortOut.existsByOwner(USER_ID)).thenReturn(true);
 
         assertThatThrownBy(() -> shopkeeperService.create(USER_ID, shop))
                 .isInstanceOf(ShopAlreadyExistsException.class);
 
-        verify(shopkeeperPortOut, never()).create(any());
+        verifyNoInteractions(shopPortOut);
     }
 }

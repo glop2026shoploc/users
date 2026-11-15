@@ -1,69 +1,54 @@
 package com.glop.users.out.jpadata.adapter;
 
-import com.glop.users.domain.model.ShopkeeperModel;
 import com.glop.users.out.jpadata.entity.EmployeeEntity;
-import com.glop.users.out.jpadata.entity.ShopEntity;
+import com.glop.users.out.jpadata.entity.EmployeeRole;
 import com.glop.users.out.jpadata.entity.UserEntity;
-import com.glop.users.out.jpadata.mapper.ShopkeeperOutMapper;
-import com.glop.users.out.jpadata.mapper.ShopkeeperOutMapperImpl;
-import com.glop.users.out.jpadata.repository.CategoryRepository;
 import com.glop.users.out.jpadata.repository.EmployeeRepository;
-import com.glop.users.out.jpadata.repository.ShopRepository;
 import com.glop.users.out.jpadata.repository.UserRepository;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.UUID;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.ArgumentMatchers.any;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class ShopkeeperAdapterOutTest {
-    @Mock
-    private ShopRepository shopRepository;
+    private static final UUID USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000001");
+    private static final UUID SHOP_ID = UUID.fromString("00000000-0000-0000-0000-000000000002");
+
     @Mock
     private EmployeeRepository employeeRepository;
     @Mock
-    private CategoryRepository categoryRepository;
-    @Mock
     private UserRepository userRepository;
-    @Mock
-    private AddressWriter addressWriter;
-    @Mock
-    private ShopkeeperOutMapper shopkeeperOutMapper;
     @InjectMocks
     private ShopkeeperAdapterOut shopkeeperAdapterOut;
 
-    private ShopEntity shop;
-    private EmployeeEntity employeeEntity;
-    private UserEntity user;
+    @Test
+    void testExistsByOwnerShouldDelegateToEmployeeRepository() {
+        when(employeeRepository.existsByUser_UserId(USER_ID)).thenReturn(true);
 
-    @BeforeEach
-    void setUp() {
-        this.shop = new ShopEntity();
-        this.user = new UserEntity();
-        user.setUserId(UUID.fromString("00000000-0000-0000-0000-000000000001"));
-        shop.setSiretNumber("12345678900013");
+        assertThat(shopkeeperAdapterOut.existsByOwner(USER_ID)).isTrue();
     }
 
     @Test
-    void testExistsByUserIdShouldReturnMappedShopkeeper() {
-        when(employeeRepository.existsByUser_UserId(user.getUserId())).thenReturn(true);
+    void testAddOwnerShouldSaveOwnerEmployeeWithShopId() {
+        UserEntity user = new UserEntity();
+        user.setUserId(USER_ID);
+        when(userRepository.getReferenceById(USER_ID)).thenReturn(user);
 
-        assertThat(shopkeeperAdapterOut.existsByOwner(user.getUserId())).isTrue();
-    }
+        shopkeeperAdapterOut.addOwner(USER_ID, SHOP_ID);
 
-    @Test
-    void testExistsBySiretNumberShouldReturnTrueIfExist() {
-        when(shopRepository.existsBySiretNumber("12345678900013")).thenReturn(true);
-
-        assertThat(shopkeeperAdapterOut.existsBySiret("12345678900013")).isTrue();
-
+        ArgumentCaptor<EmployeeEntity> captor = ArgumentCaptor.forClass(EmployeeEntity.class);
+        verify(employeeRepository).save(captor.capture());
+        assertThat(captor.getValue().getUser()).isEqualTo(user);
+        assertThat(captor.getValue().getShopId()).isEqualTo(SHOP_ID);
+        assertThat(captor.getValue().getRole()).isEqualTo(EmployeeRole.OWNER);
     }
 }

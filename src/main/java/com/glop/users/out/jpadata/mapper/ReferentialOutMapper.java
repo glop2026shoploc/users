@@ -1,8 +1,6 @@
 package com.glop.users.out.jpadata.mapper;
 
-import com.glop.users.domain.model.CategoryModel;
 import com.glop.users.domain.model.address.CityModel;
-import com.glop.users.out.jpadata.entity.CategoryEntity;
 import com.glop.users.out.jpadata.entity.CityEntity;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -20,10 +18,4 @@ public interface ReferentialOutMapper {
     CityModel toCityModel(CityEntity cityEntity);
 
     List<CityModel> toCityModels(List<CityEntity> cityEntities);
-
-    @Mapping(target = "id", source = "categoryId")
-    @Mapping(target = "name", source = "name")
-    CategoryModel toCategoryModel(CategoryEntity categoryEntity);
-
-    List<CategoryModel> toCategoryModels(List<CategoryEntity> categoryEntities);
 }

@@ -35,4 +35,5 @@ spring:
       lifecycle-management: start-only
 app:
   secret-key: ${APP_SECRET_KEY:}
+  catalogue-url: ${CATALOGUE_URL:http://localhost:8085/api/catalogue}
   expiration-time: 9000000

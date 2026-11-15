@@ -28,11 +28,11 @@ public interface AuthContextOutMapper {
     @Mapping(target = "userRole", expression = "java(getEmployeeRole())")
     @Mapping(target = "userId", source = "user.userId")
     @Mapping(target = "email", source = "user.email")
-    @Mapping(target = "shopId", source = "shop.shopId")
+    @Mapping(target = "shopId", source = "shopId")
     @Mapping(target = "employeeRole", source = "role")
     @Mapping(target = "employeeId", source = "employeeId")
     @Mapping(target = "clientId", ignore = true)
-    @Mapping(target = "cityId", source = "shop.address.city.cityId")
+    @Mapping(target = "cityId", ignore = true) // adresse du magasin est dans catalogue
     @Mapping(target = "adminId", ignore = true)
     AuthContext toAuthContext(EmployeeEntity employeeEntity);
 

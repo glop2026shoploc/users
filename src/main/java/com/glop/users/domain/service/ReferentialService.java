@@ -1,6 +1,5 @@
 package com.glop.users.domain.service;
 
-import com.glop.users.domain.model.CategoryModel;
 import com.glop.users.domain.model.address.CityModel;
 import com.glop.users.domain.port.in.ReferentialPortIn;
 import com.glop.users.domain.port.out.ReferentialPortOut;
@@ -19,10 +18,5 @@ public class ReferentialService implements ReferentialPortIn {
     @Override
     public List<CityModel> listCities() {
         return referentialPortOut.findAllCities();
-    }
-
-    @Override
-    public List<CategoryModel> listCategories() {
-        return referentialPortOut.findAllCategories();
     }
 }

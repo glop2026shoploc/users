@@ -1,0 +1,7 @@
+ALTER TABLE employee
+    DROP CONSTRAINT IF EXISTS employee_shop_id_fkey;
+
+DROP TABLE IF EXISTS opening_hours;
+DROP TABLE IF EXISTS shop;
+DROP TABLE IF EXISTS category;
+DROP TABLE IF EXISTS address;

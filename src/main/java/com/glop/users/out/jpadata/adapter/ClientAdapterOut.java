@@ -1,9 +1,7 @@
 package com.glop.users.out.jpadata.adapter;
 
 import com.glop.users.domain.model.ClientModel;
-import com.glop.users.domain.model.address.AddressModel;
 import com.glop.users.domain.port.out.ClientPortOut;
-import com.glop.users.out.jpadata.entity.AddressEntity;
 import com.glop.users.out.jpadata.entity.ClientEntity;
 import com.glop.users.out.jpadata.mapper.ClientOutMapper;
 import com.glop.users.out.jpadata.repository.CityRepository;
