@@ -1,5 +1,6 @@
 package com.glop.users.out.catalogue;
 
+import com.glop.users.config.security.JwtUtils;
 import com.glop.users.domain.model.ShopkeeperModel;
 import com.glop.users.domain.model.ShopkeeperStatus;
 import com.glop.users.domain.model.address.AddressModel;
@@ -19,11 +20,14 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.client.match.MockRestRequestMatchers.*;
 import static org.springframework.test.web.client.response.MockRestResponseCreators.*;
 
 class CatalogueShopAdapterOutTest {
     private static final String URL = "http://catalogue/api/catalogue";
+    private static final String SERVICE_TOKEN = "service-token";
     private static final UUID SHOP_ID = UUID.fromString("00000000-0000-0000-0000-000000000401");
     private static final UUID CATEGORY_ID = UUID.fromString("00000000-0000-0000-0000-000000000201");
     private static final UUID CITY_ID = UUID.fromString("00000000-0000-0000-0000-000000000101");
@@ -37,7 +41,9 @@ class CatalogueShopAdapterOutTest {
     void setUp() {
         RestClient.Builder builder = RestClient.builder();
         server = MockRestServiceServer.bindTo(builder).build();
-        adapter = new CatalogueShopAdapterOut(builder, URL);
+        JwtUtils jwtUtils = mock(JwtUtils.class);
+        when(jwtUtils.generateServiceToken()).thenReturn(SERVICE_TOKEN);
+        adapter = new CatalogueShopAdapterOut(builder, URL, jwtUtils);
 
         shop = new ShopkeeperModel();
         shop.setCompanyName("MonCommerce");
@@ -53,6 +59,7 @@ class CatalogueShopAdapterOutTest {
     void testCreateShouldSendShopAndMapResponse() {
         server.expect(requestTo(URL + "/shops"))
                 .andExpect(method(HttpMethod.POST))
+                .andExpect(header("Authorization", "Bearer " + SERVICE_TOKEN))
                 .andExpect(jsonPath("$.name").value("MonCommerce"))
                 .andExpect(jsonPath("$.siret").value("12345678900013"))
                 .andExpect(jsonPath("$.categoryIds[0]").value(CATEGORY_ID.toString()))
