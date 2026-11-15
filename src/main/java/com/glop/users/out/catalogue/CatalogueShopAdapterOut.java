@@ -1,5 +1,6 @@
 package com.glop.users.out.catalogue;
 
+import com.glop.users.config.security.JwtUtils;
 import com.glop.users.domain.model.ShopkeeperModel;
 import com.glop.users.domain.model.ShopkeeperStatus;
 import com.glop.users.domain.model.address.AddressModel;
@@ -20,9 +21,12 @@ import java.util.List;
 @Component
 public class CatalogueShopAdapterOut implements ShopPortOut {
     private final RestClient restClient;
+    private final JwtUtils jwtUtils;
 
-    public CatalogueShopAdapterOut(RestClient.Builder builder, @Value("${app.catalogue-url}") String catalogueUrl) {
+    public CatalogueShopAdapterOut(RestClient.Builder builder, @Value("${app.catalogue-url}") String catalogueUrl,
+                                   JwtUtils jwtUtils) {
         this.restClient = builder.baseUrl(catalogueUrl).build();
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -31,6 +35,7 @@ public class CatalogueShopAdapterOut implements ShopPortOut {
         try {
             response = restClient.post()
                     .uri("/shops")
+                    .headers(h -> h.setBearerAuth(jwtUtils.generateServiceToken()))
                     .body(toRequest(shop))
                     .retrieve()
                     .onStatus(status -> status.isSameCodeAs(HttpStatus.CONFLICT), (request, res) -> {

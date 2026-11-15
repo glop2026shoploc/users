@@ -57,6 +57,24 @@ public class JwtUtils implements TokenPortOut {
     }
 
 
+    /** Durée de vie courte : le token n'est utilisé que pour un appel inter-service. */
+    private static final long SERVICE_TOKEN_TTL_MS = 60_000;
+
+    /**
+     * Token technique (role SERVICE) pour appeler les autres services du SI
+     * sans contexte utilisateur, ex. création du magasin dans catalogue à l'inscription.
+     */
+    public String generateServiceToken() {
+        long now = System.currentTimeMillis();
+        return Jwts.builder()
+                .setClaims(Map.of("role", "SERVICE"))
+                .setSubject("users-service")
+                .setIssuedAt(new Date(now))
+                .setExpiration(new Date(now + SERVICE_TOKEN_TTL_MS))
+                .signWith(getSignKey(), SignatureAlgorithm.HS512)
+                .compact();
+    }
+
     private String createToken(Map<String, Object> claims, String subject) {
         return Jwts.builder()
                 .setClaims(claims)
