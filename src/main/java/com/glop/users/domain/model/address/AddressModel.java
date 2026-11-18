@@ -16,4 +16,6 @@ public class AddressModel {
     String number;
     String complement;
     CityModel cityModel;
+    Double latitude;
+    Double longitude;
 }
