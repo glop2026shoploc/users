@@ -46,6 +46,7 @@ class CatalogueShopAdapterOutTest {
         shop.setAddress(AddressModel.builder()
                 .road("rue de la République").number("12 bis").complement("Bât. B")
                 .cityModel(CityModel.builder().id(CITY_ID).build())
+                .latitude(50.6292).longitude(3.0573)
                 .build());
     }
 
@@ -57,10 +58,13 @@ class CatalogueShopAdapterOutTest {
                 .andExpect(jsonPath("$.siret").value("12345678900013"))
                 .andExpect(jsonPath("$.categoryIds[0]").value(CATEGORY_ID.toString()))
                 .andExpect(jsonPath("$.address.cityId").value(CITY_ID.toString()))
+                .andExpect(jsonPath("$.address.latitude").value(50.6292))
+                .andExpect(jsonPath("$.address.longitude").value(3.0573))
                 .andRespond(withStatus(HttpStatus.CREATED).contentType(MediaType.APPLICATION_JSON).body("""
                         {"shopId":"%s","name":"MonCommerce","siret":"12345678900013","categoryIds":["%s"],
                          "address":{"addressId":"%s","road":"rue de la République","number":"12 bis",
-                                    "complement":"Bât. B","cityId":"%s"},
+                                    "complement":"Bât. B","cityId":"%s",
+                                    "latitude":50.6292,"longitude":3.0573},
                          "status":"VALIDATED"}
                         """.formatted(SHOP_ID, CATEGORY_ID, ADDRESS_ID, CITY_ID)));
 
@@ -77,6 +81,8 @@ class CatalogueShopAdapterOutTest {
         assertThat(created.getAddress().getNumber()).isEqualTo("12 bis");
         assertThat(created.getAddress().getComplement()).isEqualTo("Bât. B");
         assertThat(created.getAddress().getCityModel().getId()).isEqualTo(CITY_ID);
+        assertThat(created.getAddress().getLatitude()).isEqualTo(50.6292);
+        assertThat(created.getAddress().getLongitude()).isEqualTo(3.0573);
     }
 
     @Test
