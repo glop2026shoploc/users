@@ -5,6 +5,6 @@ import java.util.UUID;
 
 /** POST {catalogue}/shops. */
 record CatalogueShopRequest(String name, String siret, List<UUID> categoryIds, Address address) {
-    record Address(String road, String number, String complement, UUID cityId) {
+    record Address(String road, String number, String complement, UUID cityId, Double latitude, Double longitude) {
     }
 }

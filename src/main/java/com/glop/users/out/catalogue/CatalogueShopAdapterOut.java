@@ -56,7 +56,7 @@ public class CatalogueShopAdapterOut implements ShopPortOut {
                 shop.getSiret(),
                 shop.getCategoryId() == null ? List.of() : List.of(shop.getCategoryId()),
                 new CatalogueShopRequest.Address(address.getRoad(), address.getNumber(), address.getComplement(),
-                        address.getCityModel().getId()));
+                        address.getCityModel().getId(), address.getLatitude(), address.getLongitude()));
     }
 
     private static ShopkeeperModel toModel(CatalogueShopResponse response) {
@@ -74,6 +74,8 @@ public class CatalogueShopAdapterOut implements ShopPortOut {
                     .number(address.number())
                     .complement(address.complement())
                     .cityModel(CityModel.builder().id(address.cityId()).build())
+                    .latitude(address.latitude())
+                    .longitude(address.longitude())
                     .build());
         }
         model.setStatus(response.status() == null ? ShopkeeperStatus.WAITING : ShopkeeperStatus.valueOf(response.status()));
