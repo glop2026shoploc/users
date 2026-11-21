@@ -1,6 +1,8 @@
 package com.glop.users.in.restapi.payload.address;
 
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -27,4 +29,14 @@ public class AddressPayload {
     @NotNull
     @Schema(description = "Identifiant de la ville (référentiel)", requiredMode = Schema.RequiredMode.REQUIRED)
     private UUID cityId;
+
+    @DecimalMin("-90")
+    @DecimalMax("90")
+    @Schema(description = "Latitude (WGS84), renseignée par l'autocomplétion d'adresse", example = "50.6292")
+    private Double latitude;
+
+    @DecimalMin("-180")
+    @DecimalMax("180")
+    @Schema(description = "Longitude (WGS84), renseignée par l'autocomplétion d'adresse", example = "3.0573")
+    private Double longitude;
 }
